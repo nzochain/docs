@@ -8,6 +8,10 @@
     "light": "#66FFAA",
     "dark": "#00C46A"
   },
+  "favicon": {
+    "light": "/favicon-light.svg",
+    "dark": "/favicon.svg"
+  },
   "navbar": {
     "primary": {
       "type": "button",

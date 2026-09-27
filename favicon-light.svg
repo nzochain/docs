@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="NZOChain">
+  <rect width="64" height="64" rx="14" fill="#FFFFFF"/>
+  <g fill="none" stroke="#000000" stroke-linejoin="round">
+    <path d="M32 6 L39.5 12.5 L51 14.5 L51 34 C51 45.5 42 51.5 32 57 C22 51.5 13 45.5 13 34 L13 14.5 L24.5 12.5 Z" stroke-width="3.2"/>
+    <path d="M32 13 L37.8 17.8 L45.5 19.2 L45.5 34 C45.5 42.2 39 47 32 50.8 C25 47 18.5 42.2 18.5 34 L18.5 19.2 L26.2 17.8 Z" stroke-width="2"/>
+    <path d="M27 30 V26.5 A5 5 0 0 1 37 26.5 V30" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <rect x="24" y="29.5" width="16" height="12.5" rx="2.2" fill="#000000"/>
+  <circle cx="32" cy="34.6" r="1.9" fill="#FFFFFF"/>
+  <rect x="31.1" y="35.2" width="1.8" height="3.8" rx="0.9" fill="#FFFFFF"/>
+</svg>
