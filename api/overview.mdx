@@ -1,6 +1,6 @@
 ---
 title: "Visão geral da API"
-description: "Base URL, duas camadas (legado /api e contrato /api/v1) e limites reais dos planos B2B."
+description: "Base URL, duas camadas (legado /api e contrato /api/v1), rate limits e quotas mensais por plano."
 sidebarTitle: "Overview"
 ---
 
@@ -21,17 +21,40 @@ Todas as rotas abaixo são relativas a este prefixo. **Não** uses `https://api.
 
 Começa por [API v1](/api/v1). Autenticação: [X-API-Key](/api/authentication).
 
+## Redes
+
+Endpoints de risco cobrem **quatro** redes EVM: Ethereum, BNB Chain, Polygon, Arbitrum. **Solana não é suportada.**
+
+## Rate limits e quotas (live)
+
+A API aplica, em produção:
+
+| Camada | O que faz |
+|---|---|
+| **Global** | Throttling Nest / middleware por IP e carga |
+| **Per-path** | Caps específicos (ex.: scan, login, forensic) |
+| **Per-key** | Free: **hard cap** (`429 RATE_LIMIT`). Pagos: **overage faturado** até **3×** a quota, depois `429 HARD_CEILING`. |
+
+Alertas 80%/100% ao dono da key; admin Telegram na 1.ª entrada em overage.  
+Quotas de **simulação** bloqueiam com `403 SIMULATION_QUOTA`. Ver [erros](/api/errors).
+
 ## Planos e volume
 
 | Plano | Calls / mês | Firewall | Simulate / mês | Threats | Overage / call |
 |---|---|---|---|---|---|
-| Free | 1 000 | Não | 0 | Não | $0.01 |
-| Starter | 25 000 | Sim | 100 | Não | $0.004 |
-| Growth | 100 000 | Sim | 2 000 | Standard | $0.002 |
-| Business | 500 000 | Sim | 10 000 | Completo | $0.001 |
-| Enterprise | Ilimitado | Sim | Ilimitado | Completo | Contrato |
+| Free | 1 000 | Não | 0 | Não | **Hard cap** (sem overage pago; `429 RATE_LIMIT`) |
+| Starter | 25 000 | Sim | 100 | Não | $0.004 (até 3×; depois `HARD_CEILING`) |
+| Growth | 100 000 | Sim | 2 000 | Standard | $0.002 (até 3×; depois `HARD_CEILING`) |
+| Business | 500 000 | Sim | 10 000 | Completo | $0.001 (até 3×; depois `HARD_CEILING`) |
+| Enterprise | Contrato (pilot-grade) | Sim | Contrato | Completo | Contrato |
 
-Calls extra **não** devolvem bloqueio de quota de volume: o overage é registado. Ver [erros](/api/errors).
+## Simulação
+
+Simulação **live** exige Tenderly configurado. Sem Tenderly (ou se a chamada live falhar), a resposta é análise **estática / degradada**.
+
+## Webhooks
+
+Evento live: **`revocation.completed` apenas**. Outros eventos estão em roadmap. Ver [Webhooks](/api/webhooks).
 
 ## Envelope JSON
 

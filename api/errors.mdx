@@ -1,6 +1,6 @@
 ---
 title: "Erros da API"
-description: "401 de chave, 403 de plano ou quota de simulação, e overage que não bloqueia."
+description: "401 de chave, 403 de plano/simulação, 429 RATE_LIMIT (Free hard cap) e 429 HARD_CEILING (pagos)."
 sidebarTitle: "Errors"
 ---
 
@@ -16,6 +16,7 @@ O filtro HTTP devolve JSON com `success: false` e, quando existe, um `code` em `
 
 | HTTP | `code` | Quando |
 |---|---|---|
+| 403 | `SCOPE_REQUIRED` | A key não tem o scope exigido (ex. `wallet.scan`). Corpo pode incluir `required`. |
 | 403 | `PLAN_UPGRADE_REQUIRED` | Feature (Firewall analyze/simulate ou threats) acima do plano. Corpo inclui `feature` e `upgradeUrl`. |
 | 403 | `SIMULATION_QUOTA` | Quota mensal de `simulate` esgotada. Corpo inclui `used` e `quota`. |
 
@@ -33,14 +34,20 @@ Exemplo:
 
 ## Volume de API calls
 
-Ultrapassar as calls incluídas **não** bloqueia o pedido. A plataforma grava **UsageOverage** (preço por call extra do plano) para facturar no fim do ciclo.
+| Plano | Comportamento |
+|---|---|
+| **Free** | **Hard cap.** Ao ultrapassar a quota mensal → **`429 RATE_LIMIT`** (`limit`, `used`, `resetAt`). Sem overage pago. |
+| **Starter / Growth / Business** | Overage **faturado** até **3×** a quota (pedido continua). Acima do teto → **`429 HARD_CEILING`** (`limit`, `used`, `resetAt`, `upgradeUrl`). |
+| **Enterprise** | Custom / ilimitado sob contrato (pilot-grade). |
+
+Não digas que “calls extra nunca bloqueiam” — isso era incorrecto para Free e para o teto 3× dos planos pagos.
 
 ## Outros
 
 | HTTP | Uso típico |
 |---|---|
 | 400 | Body inválido (morada, network, calldata) |
-| 429 | Rate limit de infra (se activo) |
+| 429 | Também rate limit de infra / per-key (além das quotas mensais acima) |
 | 500 | Falha interna; mensagem ao cliente é genérica em produção |
 
 Stats públicos (`GET /api/stats/public`) **não** exigem API key.

@@ -21,9 +21,11 @@ Planos: [Free → Premium](/pricing/individual). O Free chega para 1 wallet.
 ## B2B — integrar a API
 
 1. Cria conta em [developers.nzochain.com](https://developers.nzochain.com).
-2. Cria um projecto e uma API key (`pk_live_...`).
-3. Envia `X-API-Key` em `https://api.nzochain.com/api/...`.
-4. Wallet/contract risk está no **Free**. `analyze` / `simulate` exigem **Starter+**. Threat intel exige **Growth+**.
+2. Cria um projecto e uma API key (`pk_live_...`) com scope `wallet.scan` (mínimo).
+3. Autentica com header **`X-API-Key`** (não `Authorization: Bearer`) em `https://api.nzochain.com/api/...`.
+4. Primeira chamada: `POST /v1/wallets/risk`. Wallet/contract risk está no **Free** (hard cap 1 000 calls). `analyze` / `simulate` exigem **Starter+**. Threat intel exige **Growth+**.
+5. Erros comuns: [Erros](/api/errors). Limites: [Overview](/api/overview) e [Billing no portal](https://developers.nzochain.com/billing).
+6. Guia passo a passo no portal (após login): [developers.nzochain.com/quickstart](https://developers.nzochain.com/quickstart).
 
 Detalhe: [Autenticação](/api/authentication) e [API v1](/api/v1).
 
@@ -36,4 +38,7 @@ curl -X POST "https://api.nzochain.com/api/v1/wallets/risk?lang=en" \
   -d '{"wallet":"0x...","network":"ethereum"}'
 ```
 
-Resposta normalizada: `riskLevel`, `decision` (`ALLOW | REVIEW | BLOCK`), `reasons` em linguagem humana.
+Envelope: `{ "success": true, "data": { ... } }`.  
+Campos úteis em `data`: `riskScore`, `riskLevel` (`SAFE | CAUTION | HIGH | CRITICAL`), `decision` (`ALLOW | REVIEW | BLOCK`), `reasons`.
+
+Webhook outbound live: apenas `revocation.completed` — ver [Webhooks](/api/webhooks).

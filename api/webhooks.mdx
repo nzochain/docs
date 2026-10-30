@@ -1,164 +1,57 @@
 ---
-title: "Webhooks: Real-Time Threat Event Notifications"
-description: "Subscribe to NZOChain webhook events to receive instant notifications when threat levels change, new approvals are detected, or risks escalate."
+title: "Webhooks"
+description: "Outbound HMAC webhooks. Currently supported: revocation.completed only."
 sidebarTitle: "Webhooks"
 ---
 
-Webhooks give you a push-based integration with NZOChain's threat detection system. Instead of polling the API repeatedly to check whether a wallet's risk level has changed, you register an HTTPS endpoint and NZOChain delivers a POST request to it the moment a threat event occurs. This is the fastest way to react to new threats — your application receives alerts in real time, with no polling overhead.
+<Warning>
+  **Currently supported:** `revocation.completed` only.
+  Roadmap (Q1 2027): `wallet.scan.completed`, `risk.alert`.
+  There is no production dispatcher for other event names.
+</Warning>
 
-## Subscribe to events
-
-Send a POST request to the subscribe endpoint to register your webhook URL and choose which events you want to receive.
-
-### Endpoint
+Manage subscriptions in the [Developer Portal](https://developers.nzochain.com/webhooks) (UI recomendada) or via the developer session API:
 
 ```
-POST https://api.nzochain.com/api/webhooks/subscribe
+POST https://api.nzochain.com/api/developer/projects/:projectId/webhooks
+Cookie / session JWT do portal (não uses X-API-Key nesta rota de gestão)
+Body: { "url": "https://your-app.com/hooks", "events": ["revocation.completed"] }
 ```
 
-### Request body
+A **API key** (`X-API-Key`) autentica chamadas `/v1/...`. A **sessão do portal** gere projectos/webhooks. Não mistures os dois contratos.
 
-<ParamField body="url" type="string" required>
-  Your HTTPS endpoint that will receive webhook event payloads. Must be a publicly accessible URL with a valid TLS certificate.
-</ParamField>
+## Event: `revocation.completed`
 
-<ParamField body="events" type="string[]" required>
-  The event types to subscribe to. See the event types table below for available values.
-</ParamField>
+Fired when an approval revocation is confirmed on-chain.
 
-<ParamField body="wallet" type="string">
-  Scope this subscription to a single wallet address. When omitted, you receive events for all wallets NZOChain is monitoring on your account.
-</ParamField>
-
-### Example request
+Headers:
+- `X-NZOChain-Signature: sha256=<hmac>`
+- `X-NZOChain-Event: revocation.completed`
 
 ```json
 {
-  "url": "https://your-app.com/webhooks/nzochain",
-  "events": ["threat.detected", "approval.infinite", "status.critical"],
-  "wallet": "0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234"
-}
-```
-
-## Event types
-
-| Event | Trigger |
-|-------|---------|
-| `risk.score.changed` | RiskScore increased or decreased significantly |
-| `threat.detected` | New malicious contract or approval detected |
-| `approval.infinite` | Infinite token approval detected |
-| `phishing.attempt` | Phishing domain or fake dApp detected |
-| `status.critical` | Wallet status escalated to CRITICAL |
-
-## Webhook payload
-
-NZOChain sends a JSON POST request to your endpoint when an event fires. The payload includes the event type, the affected wallet, a timestamp, and a `data` object with event-specific details.
-
-### Example payload — `threat.detected`
-
-```json
-{
-  "event": "threat.detected",
-  "wallet": "0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234",
-  "timestamp": "2024-01-15T10:35:00Z",
+  "event": "revocation.completed",
+  "timestamp": "2026-09-15T18:00:00.000Z",
   "data": {
-    "threatType": "MALICIOUS_CONTRACT",
-    "severity": "HIGH",
-    "message": "Interaction with known malicious contract detected",
-    "contractAddress": "0xAbC..."
+    "wallet": "0x…",
+    "network": "ethereum",
+    "spender": "0x…",
+    "dappName": null,
+    "symbol": "USDT",
+    "txHash": "0x…",
+    "revokedAt": "2026-09-15T18:00:00.000Z"
   }
 }
 ```
 
-### Example payload — `risk.score.changed`
+## Verifying authenticity
 
-```json
-{
-  "event": "risk.score.changed",
-  "wallet": "0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234",
-  "timestamp": "2024-01-15T11:00:00Z",
-  "data": {
-    "previousScore": 23,
-    "currentScore": 74,
-    "previousStatus": "SAFE",
-    "currentStatus": "HIGH RISK"
-  }
-}
-```
+HMAC-SHA256 of the **raw JSON body** with your `whsec_*` secret. Compare to `X-NZOChain-Signature` (prefix `sha256=`).
 
-## Verifying webhook authenticity
+## Delivery
 
-Each webhook request includes an `X-NZOChain-Signature` header. You should verify this header before processing the payload to confirm the request genuinely came from NZOChain and has not been tampered with.
+- HTTPS only (SSRF protections apply)
+- Retries: 1s → 5s → 30s
+- Expect HTTP 2xx; non-2xx marks the webhook as failing after retries
 
-The signature is an HMAC-SHA256 hash of the raw request body, signed with your webhook secret. You can find your webhook secret in the NZOChain dashboard under **Settings → Webhooks**.
-
-<CodeGroup>
-
-```javascript JavaScript
-const crypto = require('crypto');
-
-function verifyWebhook(rawBody, signatureHeader, webhookSecret) {
-  const expectedSignature = crypto
-    .createHmac('sha256', webhookSecret)
-    .update(rawBody)
-    .digest('hex');
-
-  return crypto.timingSafeEqual(
-    Buffer.from(signatureHeader),
-    Buffer.from(expectedSignature)
-  );
-}
-
-// Express example
-app.post('/webhooks/nzochain', express.raw({ type: 'application/json' }), (req, res) => {
-  const signature = req.headers['x-nzochain-signature'];
-
-  if (!verifyWebhook(req.body, signature, process.env.NZOCHAIN_WEBHOOK_SECRET)) {
-    return res.status(401).send('Invalid signature');
-  }
-
-  const event = JSON.parse(req.body);
-  console.log('Verified event:', event.event);
-  res.sendStatus(200);
-});
-```
-
-```python Python
-import hashlib
-import hmac
-import os
-
-def verify_webhook(raw_body: bytes, signature_header: str, webhook_secret: str) -> bool:
-    expected = hmac.new(
-        webhook_secret.encode(),
-        raw_body,
-        hashlib.sha256
-    ).hexdigest()
-    return hmac.compare_digest(signature_header, expected)
-
-# Flask example
-from flask import Flask, request, abort
-
-app = Flask(__name__)
-
-@app.route('/webhooks/nzochain', methods=['POST'])
-def handle_webhook():
-    signature = request.headers.get('X-NZOChain-Signature', '')
-
-    if not verify_webhook(request.data, signature, os.environ['NZOCHAIN_WEBHOOK_SECRET']):
-        abort(401)
-
-    event = request.get_json()
-    print(f"Verified event: {event['event']}")
-    return '', 200
-```
-
-</CodeGroup>
-
-## Handling delivery and retries
-
-When NZOChain sends a webhook event to your endpoint, your server must respond with an HTTP `200 OK` status within **5 seconds** to acknowledge receipt. If your endpoint does not respond in time, or responds with a non-2xx status, NZOChain will retry the delivery with exponential backoff.
-
-<Note>
-  Respond with `200 OK` as quickly as possible — ideally before you process the event. If your processing logic is slow, acknowledge receipt immediately and handle the event asynchronously in a background queue. NZOChain marks a delivery as failed after 5 seconds and will retry, which can result in duplicate deliveries if your processing is slow.
-</Note>
+Full details: backend `docs/WEBHOOKS.md`.
