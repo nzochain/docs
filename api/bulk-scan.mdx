@@ -1,186 +1,29 @@
 ---
-title: "POST /api/bulk/scan — Scan Multiple Wallets"
-description: "Scan up to 1,000 wallet addresses in a single API request. Ideal for dApps and exchanges that need batch threat screening. Growth plan required."
+title: "POST /api/bulk/scan — status"
+description: "Bulk scan is not a live production endpoint. Use POST /api/v1/wallets/risk for EVM wallets on the four supported networks."
 sidebarTitle: "Bulk Scan"
 ---
 
-The bulk scan endpoint lets you submit up to 1,000 wallet addresses in a single request and receive RiskScore™ results for each one. This is useful for exchanges screening depositing users, dApps validating counterparties before a transaction, or any workflow where you need threat data on many wallets without making hundreds of individual calls. Bulk scan is available on the Growth and Enterprise plans.
-
-## Endpoint
-
-```
-POST https://api.nzochain.com/api/bulk/scan
-```
-
-**Available on:** Growth and Enterprise plans.
-
-## Request body
-
-<ParamField body="wallets" type="string[]" required>
-  An array of wallet addresses to scan. Accepts EVM and Solana addresses. Maximum 1,000 addresses per request.
-</ParamField>
-
-<ParamField body="chain" type="string">
-  Chain identifier to apply to all addresses in the request, e.g., `"ethereum"` or `"polygon"`. When omitted, NZOChain auto-detects the chain for each address individually.
-</ParamField>
-
-### Example request
-
-```json
-{
-  "wallets": [
-    "0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234",
-    "0xAbC123dEf456GhI789jKl012MnO345pQr678StU9",
-    "0xDef789GhI012JkL345MnO678pQr901StU234vWx5"
-  ],
-  "chain": "ethereum"
-}
-```
-
-## Response fields
-
-The response contains a `results` array. Each entry corresponds to one wallet from your request and matches the structure of a single `/api/risk/scan` response.
-
-<ResponseField name="results" type="object[]" required>
-  Array of scan results, one per submitted wallet address.
-
-  <Expandable title="result properties" defaultOpen={true}>
-    <ResponseField name="wallet" type="string">
-      The wallet address this result corresponds to.
-    </ResponseField>
-    <ResponseField name="riskScore" type="number">
-      Score from 0 to 100 for this wallet.
-    </ResponseField>
-    <ResponseField name="status" type="string">
-      Threat status: `"SAFE"`, `"WARNING"`, `"HIGH RISK"`, or `"CRITICAL"`.
-    </ResponseField>
-    <ResponseField name="warnings" type="string[]">
-      List of detected threat descriptions for this wallet.
-    </ResponseField>
-    <ResponseField name="scannedAt" type="string">
-      ISO 8601 timestamp of when this wallet was scanned.
-    </ResponseField>
-    <ResponseField name="chain" type="string">
-      The chain on which this wallet was scanned.
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
-### Example response
-
-```json
-{
-  "results": [
-    {
-      "wallet": "0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234",
-      "riskScore": 87,
-      "status": "HIGH RISK",
-      "warnings": [
-        "Infinite approval detected",
-        "Malicious contract detected"
-      ],
-      "scannedAt": "2024-01-15T10:30:00Z",
-      "chain": "ethereum"
-    },
-    {
-      "wallet": "0xAbC123dEf456GhI789jKl012MnO345pQr678StU9",
-      "riskScore": 5,
-      "status": "SAFE",
-      "warnings": [],
-      "scannedAt": "2024-01-15T10:30:01Z",
-      "chain": "ethereum"
-    },
-    {
-      "wallet": "0xDef789GhI012JkL345MnO678pQr901StU234vWx5",
-      "riskScore": 41,
-      "status": "WARNING",
-      "warnings": ["Interaction with flagged contract in past 30 days"],
-      "scannedAt": "2024-01-15T10:30:01Z",
-      "chain": "ethereum"
-    }
-  ]
-}
-```
-
-## Asynchronous processing
-
-For requests with large numbers of addresses, NZOChain processes the batch asynchronously. The API response may include a `jobId` for large batches — use the job ID to poll for results or configure a webhook to receive them when processing is complete. For smaller batches (typically under 50 addresses), results are returned synchronously in the response.
-
-## Code examples
-
-<CodeGroup>
-
-```bash cURL
-curl -X POST https://api.nzochain.com/api/bulk/scan \
-  -H "X-API-Key: pk_live_YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "wallets": [
-      "0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234",
-      "0xAbC123dEf456GhI789jKl012MnO345pQr678StU9",
-      "0xDef789GhI012JkL345MnO678pQr901StU234vWx5"
-    ],
-    "chain": "ethereum"
-  }'
-```
-
-```javascript JavaScript
-const response = await fetch('https://api.nzochain.com/api/bulk/scan', {
-  method: 'POST',
-  headers: {
-    'X-API-Key': process.env.NZOCHAIN_API_KEY,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    wallets: [
-      '0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234',
-      '0xAbC123dEf456GhI789jKl012MnO345pQr678StU9',
-      '0xDef789GhI012JkL345MnO678pQr901StU234vWx5',
-    ],
-    chain: 'ethereum',
-  }),
-});
-
-const { results } = await response.json();
-
-const flagged = results.filter(
-  (r) => r.status === 'HIGH RISK' || r.status === 'CRITICAL'
-);
-console.log(`${flagged.length} of ${results.length} wallets flagged`);
-```
-
-```python Python
-import os
-import requests
-
-response = requests.post(
-    'https://api.nzochain.com/api/bulk/scan',
-    headers={
-        'X-API-Key': os.environ["NZOCHAIN_API_KEY"],
-        'Content-Type': 'application/json',
-    },
-    json={
-        'wallets': [
-            '0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234',
-            '0xAbC123dEf456GhI789jKl012MnO345pQr678StU9',
-            '0xDef789GhI012JkL345MnO678pQr901StU234vWx5',
-        ],
-        'chain': 'ethereum',
-    },
-)
-
-results = response.json()['results']
-for wallet_result in results:
-    print(f"{wallet_result['wallet'][:10]}... → {wallet_result['status']} ({wallet_result['riskScore']})")
-```
-
-</CodeGroup>
-
-## Limits
-
-- Maximum **1,000 addresses** per request.
-- Each address in the batch counts as **one API call** against your monthly limit.
-
 <Warning>
-  Bulk scan counts every address you submit as one API call. A request with 500 wallets consumes 500 of your monthly quota. Plan your batch sizes accordingly and use the [wallet monitor endpoint](/api/wallet-monitor) for wallets you check frequently to avoid redundant scans.
+  **Not a live production endpoint.** There is no supported public bulk-scan API that accepts Solana or arbitrary multi-chain batches.
+  Prefer **[POST /api/v1/wallets/risk](/api/v1)** (one EVM wallet per call) on Ethereum, BNB Chain, Polygon, or Arbitrum.
+  Do **not** call legacy `/api/wallet/*` (HTTP 410 Gone).
 </Warning>
+
+## What to use instead
+
+```
+POST https://api.nzochain.com/api/v1/wallets/risk
+Header: X-API-Key: pk_live_...
+Body: { "wallet": "0x...", "network": "ethereum" }
+```
+
+`network`: `ethereum` | `bnb` | `polygon` | `arbitrum` only.
+
+**Solana is not supported.** Do not submit Solana addresses to risk APIs.
+
+For many wallets, call `POST /api/v1/wallets/risk` per address (respect [rate limits and monthly quotas](/api/overview)) and cache results client-side.
+
+## Historical note
+
+Older drafts documented `POST /api/bulk/scan` with up to 1,000 addresses including Solana. That surface is **not** part of the current production contract. Treat any remaining `/api/bulk/scan` references as outdated.

@@ -1,24 +1,31 @@
 ---
 title: "API v1 — Transaction Firewall"
-description: "Contrato B2B: wallets, contratos, analyze, simulate e threats. Gating por plano e quotas de simulação."
+description: "Contrato B2B REST: wallets, contratos, analyze, simulate e threats. Auth X-API-Key, scopes e gating por plano."
 sidebarTitle: "API v1"
 ---
 
 Prefixo: `https://api.nzochain.com/api/v1`  
-Auth: `X-API-Key`  
+Auth: header **`X-API-Key`**  
 Query opcional: `lang=pt` ou `lang=en`
 
-O `/api` antigo **não é removido**. A v1 é **aditiva**.
+<Note>
+  Integração actual = **REST**. Não existe SDK oficial publicado (`@nzochain/sdk` / `NzochainClient`). Exemplos: [Quickstart](/quickstart).
+</Note>
 
-## Endpoints
+A v1 é **aditiva** face ao `/api` legado. Produtos novos devem usar v1.
 
-| Método | Path | Plano mínimo |
-|---|---|---|
-| `POST` | `/v1/wallets/risk` | Free |
-| `POST` | `/v1/contracts/risk` | Free |
-| `POST` | `/v1/transactions/analyze` | **Starter** |
-| `POST` | `/v1/transactions/simulate` | **Starter** + quota mensal |
-| `POST` | `/v1/threats/check` | **Growth** |
+## Endpoints e scopes
+
+| Método | Path | Scope | Plano mínimo |
+|---|---|---|---|
+| `POST` | `/v1/wallets/risk` | `wallet.scan` | Free |
+| `POST` | `/v1/contracts/risk` | `contract.scan` | Free |
+| `POST` | `/v1/transactions/analyze` | `transaction.analyze` | **Starter** |
+| `POST` | `/v1/transactions/simulate` | `transaction.analyze` | **Starter** + quota mensal |
+| `POST` | `/v1/threats/check` | `threat.check` | **Growth** |
+
+Scope em falta → **403** `{ "error": "SCOPE_REQUIRED", "required": "…" }`.  
+Feature fora do plano → **403** `PLAN_UPGRADE_REQUIRED`.
 
 ### Wallet risk
 
@@ -28,13 +35,15 @@ O `/api` antigo **não é removido**. A v1 é **aditiva**.
 
 `network`: `ethereum` | `bnb` | `polygon` | `arbitrum`.
 
+Opcionais (DTO partilhado): `forceRefresh`, `includeBlocked`, `requesterWallet`.
+
 ### Contract risk
 
 ```json
 { "address": "0x...", "network": "ethereum" }
 ```
 
-### Analyze transaction (Firewall)
+### Analyze transaction
 
 ```json
 {
@@ -56,7 +65,9 @@ O `/api` antigo **não é removido**. A v1 é **aditiva**.
 }
 ```
 
-Quotas: Free 0 · Starter 100 · Growth 2 000 · Business 10 000 · Enterprise ilimitado.
+Simulação **live** exige **Tenderly**. Sem Tenderly (ou se a chamada live falhar), a API devolve análise **estática / degradada**.
+
+Quotas mensais de simulate: Free 0 · Starter 100 · Growth 2 000 · Business 10 000 · Enterprise por contrato (pilot-grade). Esgotada → **403 `SIMULATION_QUOTA`**.
 
 ### Threats
 
@@ -65,6 +76,8 @@ Quotas: Free 0 · Starter 100 · Growth 2 000 · Business 10 000 · Enterpri
 ```
 
 ## Contrato da resposta
+
+Envelope típico:
 
 ```json
 {
@@ -79,15 +92,44 @@ Quotas: Free 0 · Starter 100 · Growth 2 000 · Business 10 000 · Enterpri
 }
 ```
 
-Mapeamento típico: CRITICAL/HIGH → `BLOCK` · CAUTION/REVIEW → `REVIEW` · SAFE → `ALLOW`.
+Mapeamento típico: CRITICAL/HIGH → `BLOCK` · CAUTION → `REVIEW` · SAFE → `ALLOW`.
 
 ## cURL
 
 ```bash
+curl -X POST "https://api.nzochain.com/api/v1/wallets/risk?lang=en" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"wallet":"0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234","network":"ethereum"}'
+```
+
+```bash
 curl -X POST "https://api.nzochain.com/api/v1/transactions/analyze?lang=en" \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: pk_live_SUA_CHAVE" \
+  -H "X-API-Key: YOUR_API_KEY" \
   -d '{"chainId":1,"wallet":"0x...","to":"0x...","calldata":"0x...","value":"0"}'
 ```
 
-Planos: [B2B](/pricing/enterprise) · Erros: [erros](/api/errors).
+## JavaScript `fetch`
+
+```javascript
+const res = await fetch('https://api.nzochain.com/api/v1/wallets/risk?lang=en', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': process.env.NZOCHAIN_API_KEY,
+  },
+  body: JSON.stringify({
+    wallet: '0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234',
+    network: 'ethereum',
+  }),
+});
+const { success, data } = await res.json();
+```
+
+## Quotas de volume
+
+- **Free:** hard cap → `429 RATE_LIMIT`
+- **Pagos:** overage faturado até **3×** a quota; depois `429 HARD_CEILING`
+
+Ver [Overview](/api/overview) e [Erros](/api/errors). Planos: [B2B](/pricing/enterprise).

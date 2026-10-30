@@ -1,44 +1,136 @@
 ---
-title: "Começar na app em minutos"
-description: "Liga a carteira em app.nzochain.com, corre um scan e revoga autorizações perigosas. Sem seed, sem custódia."
+title: "Começar: app B2C e API REST"
+description: "Primeira integração sem SDK. App B2C em minutos; B2B com X-API-Key, cURL e fetch contra a API v1."
 sidebarTitle: "Quickstart"
+---
+
+## Integração REST (sem SDK)
+
+A NZOChain disponibiliza actualmente integração **através da REST API**. **Não existe ainda um SDK oficial publicado** (incluindo `@nzochain/sdk`). Usa HTTP com o header `X-API-Key`.
+
+Base URL:
+
+```
+https://api.nzochain.com/api
+```
+
+Contrato recomendado para produtos novos: **`/v1/...`**. Detalhe: [API v1](/api/v1) · [Autenticação](/api/authentication) · [Erros](/api/errors).
+
 ---
 
 ## B2C — proteger a tua wallet
 
 1. Abre [app.nzochain.com](https://app.nzochain.com).
 2. Liga a carteira e **assina uma mensagem**. É prova de posse — **não move fundos**.
-3. A NZOChain analisa aprovações, contratos e ligações nas **4 redes** suportadas.
-4. Vês o nível de risco (Safe / Warning / High Risk / Critical) e o que está activo.
+3. A NZOChain analisa aprovações, contratos e ligações nas **4 redes** suportadas (Ethereum, BNB Chain, Polygon, Arbitrum).
+4. Vês o nível de risco e o que está activo.
 5. Para revogar, confirmas a transacção **na tua carteira**.
 
 <Warning>
 Se alguém a fingir ser a NZOChain pedir seed ou chave privada, é phishing. Nós nunca pedimos isso.
 </Warning>
 
-Planos: [Free → Premium](/pricing/individual). O Free chega para 1 wallet.
+Planos: [Free → Premium](/pricing/individual).
 
-## B2B — integrar a API
+---
+
+## B2B — primeira chamada REST
+
+### 1. Obter a API Key
 
 1. Cria conta em [developers.nzochain.com](https://developers.nzochain.com).
-2. Cria um projecto e uma API key (`pk_live_...`) com scope `wallet.scan` (mínimo).
-3. Autentica com header **`X-API-Key`** (não `Authorization: Bearer`) em `https://api.nzochain.com/api/...`.
-4. Primeira chamada: `POST /v1/wallets/risk`. Wallet/contract risk está no **Free** (hard cap 1 000 calls). `analyze` / `simulate` exigem **Starter+**. Threat intel exige **Growth+**.
-5. Erros comuns: [Erros](/api/errors). Limites: [Overview](/api/overview) e [Billing no portal](https://developers.nzochain.com/billing).
-6. Guia passo a passo no portal (após login): [developers.nzochain.com/quickstart](https://developers.nzochain.com/quickstart).
+2. Cria um projecto.
+3. Gera uma API key (`pk_live_...`). Por omissão as keys novas incluem o scope `wallet.scan` (necessário para `POST /v1/wallets/risk`).
 
-Detalhe: [Autenticação](/api/authentication) e [API v1](/api/v1).
+### 2. Autenticação
 
-## Exemplo mínimo (v1)
+Header obrigatório nas rotas B2B v1:
+
+```
+X-API-Key: YOUR_API_KEY
+```
+
+**Não** uses `Authorization: Bearer` nestas rotas. Guia: [Autenticação](/api/authentication).
+
+### 3. Primeira chamada (cURL)
 
 ```bash
 curl -X POST "https://api.nzochain.com/api/v1/wallets/risk?lang=en" \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: pk_live_SUA_CHAVE" \
-  -d '{"wallet":"0x...","network":"ethereum"}'
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"wallet":"0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234","network":"ethereum"}'
 ```
 
-Envelope: `{ "success": true, "data": { ... } }`.  
-Campos úteis em `data`: `riskScore`, `riskLevel` (`SAFE | CAUTION | HIGH | CRITICAL`), `decision` (`ALLOW | REVIEW | BLOCK`), `reasons`.
+`network`: `ethereum` | `bnb` | `polygon` | `arbitrum`.
 
-Webhook outbound live: apenas `revocation.completed` — ver [Webhooks](/api/webhooks).
+### 4. Equivalente com JavaScript `fetch`
+
+```javascript
+const res = await fetch(
+  'https://api.nzochain.com/api/v1/wallets/risk?lang=en',
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': process.env.NZOCHAIN_API_KEY, // YOUR_API_KEY no servidor
+    },
+    body: JSON.stringify({
+      wallet: '0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234',
+      network: 'ethereum',
+    }),
+  },
+);
+
+const payload = await res.json();
+// Sucesso típico (interceptor): { success: true, data: { riskScore, riskLevel, decision, reasons, meta } }
+if (!res.ok || payload.success === false) {
+  console.error(payload);
+} else {
+  const { riskScore, riskLevel, decision, reasons } = payload.data;
+  console.log({ riskScore, riskLevel, decision, reasons });
+}
+```
+
+Coloca a chave **só no servidor**. Nunca no JavaScript público de um dApp.
+
+### 5. Forma da resposta (contrato v1)
+
+Campos úteis em `data` (quando `success: true`):
+
+| Campo | Valores típicos |
+|---|---|
+| `riskScore` | número 0–100 |
+| `riskLevel` | `SAFE` \| `CAUTION` \| `HIGH` \| `CRITICAL` |
+| `decision` | `ALLOW` \| `REVIEW` \| `BLOCK` |
+| `reasons` | lista de frases humanas |
+
+### 6. Erros comuns
+
+| HTTP | Código / significado |
+|---|---|
+| 401 | `X-API-Key` ausente, inválida ou revogada |
+| 403 | `SCOPE_REQUIRED` — falta o scope (ex. `wallet.scan`) |
+| 403 | `PLAN_UPGRADE_REQUIRED` — feature acima do plano (`analyze` / `simulate` / `threats`) |
+| 429 | Free: `RATE_LIMIT` (hard cap). Pagos: `HARD_CEILING` após 3× a quota |
+
+Tabela completa: [Erros](/api/errors).
+
+### 7. Limites do plano (resumo)
+
+| Plano | Calls / mês | Comportamento ao limite |
+|---|---|---|
+| **Free** | 1 000 | Hard cap → `429 RATE_LIMIT` (sem overage pago) |
+| **Starter+** | conforme [Overview](/api/overview) | Overage faturado até **3×**; depois `429 HARD_CEILING` |
+
+Wallet/contract risk está no **Free**. `analyze` / `simulate` exigem **Starter+**. Threat intel exige **Growth+**.
+
+### 8. Próximos passos
+
+- Referência de endpoints: [API v1](/api/v1)
+- Quotas e redes: [Overview](/api/overview)
+- Webhook live (`revocation.completed`): [Webhooks](/api/webhooks)
+- Guia no portal (após login): [developers.nzochain.com/quickstart](https://developers.nzochain.com/quickstart)
+
+<Note>
+O caminho legado `POST /api/risk/scan` continua operacional para a app B2C e integrações antigas, mas **não** é a integração recomendada para produtos novos. Ver [Risk Scan (legado)](/api/risk-scan).
+</Note>

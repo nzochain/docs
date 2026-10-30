@@ -1,16 +1,13 @@
 ---
-title: "POST /api/risk/scan — Wallet Threat Scan"
-description: "Scan legado de uma wallet EVM. Prefere POST /api/v1/wallets/risk."
-sidebarTitle: "Risk Scan"
+title: "POST /api/risk/scan — legado"
+description: "Scan legado de uma wallet EVM. Integração B2B recomendada: POST /api/v1/wallets/risk com X-API-Key."
+sidebarTitle: "Risk Scan (legado)"
 ---
 
-<Note>
-  Integração B2B canónica: **[API v1](/api/v1)** (`POST /api/v1/wallets/risk`) com `X-API-Key`.
-  Esta página é o caminho **legado**. URL correcto: `https://api.nzochain.com/api/risk/scan`.
-  Só EVM nas quatro redes suportadas — não Solana.
-</Note>
-
-The risk scan endpoint analyzes a wallet address and returns risk signals for product integrations that still use the legacy path.
+<Warning>
+  **Legado.** Continua operacional para a app B2C e integrações antigas, mas **não** é o contrato recomendado para produtos novos.
+  Preferir **[POST /api/v1/wallets/risk](/api/v1)** com header `X-API-Key`.
+</Warning>
 
 ## Endpoint
 
@@ -18,137 +15,51 @@ The risk scan endpoint analyzes a wallet address and returns risk signals for pr
 POST https://api.nzochain.com/api/risk/scan
 ```
 
+Auth: sessão B2C **ou** chave B2B (`X-API-Key`) via o guard partilhado. Developers novos devem usar a **API v1**.
+
 ## Request body
 
-<ParamField body="wallet" type="string" required>
-  Morada EVM (`0x…`) numa das quatro redes suportadas.
-</ParamField>
+Campos confirmados no DTO `ScanRiskDto` (`nzochain-backend`):
 
-<ParamField body="chain" type="string">
-  Chain identifier to scope the scan, such as `"ethereum"`, `"polygon"`, or `"solana"`. When omitted, NZOChain auto-detects the chain based on the address format. Default: auto-detect.
-</ParamField>
+| Campo | Tipo | Obrigatório | Notas |
+|---|---|---|---|
+| `wallet` | string | sim | Morada EVM `0x…` |
+| `network` | string | não | `ethereum` \| `bnb` \| `polygon` \| `arbitrum` (default `ethereum`) |
+| `forceRefresh` | boolean | não | Ignora caches |
+| `includeBlocked` | boolean | não | Inclui blacklist pessoal |
+| `requesterWallet` | string | não | Contexto opcional |
 
-<ParamField body="include_details" type="boolean" default="false">
-  When `true`, the response includes a detailed breakdown of individual contract interactions and token approvals that contributed to the score. Default: `false`.
-</ParamField>
+**Solana não é suportada.** Não existe campo `chain` nem `include_details` neste DTO.
 
-### Example request
+### Exemplo
 
 ```json
 {
   "wallet": "0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234",
-  "chain": "ethereum",
-  "include_details": true
+  "network": "ethereum"
 }
 ```
 
-## Response fields
+## Resposta (camada legado)
 
-<ResponseField name="riskScore" type="number" required>
-  A score from 0 to 100 representing the overall threat level of the wallet. Higher scores indicate greater risk.
-</ResponseField>
+A resposta legado inclui tipicamente `wallet`, `network`, `riskScore`, `warnings`, `status` e `transactionsAnalyzed` (mais `meta` / sinais opcionais). O envelope HTTP pode ser envolvido pelo interceptor (`success` / `data`).
 
-<ResponseField name="status" type="string" required>
-  Categorical threat status derived from the risk score. One of `"SAFE"`, `"WARNING"`, `"HIGH RISK"`, or `"CRITICAL"`.
-</ResponseField>
+Para o contrato estável B2B (`riskLevel`, `decision`, `reasons`), usa a [API v1](/api/v1).
 
-<ResponseField name="warnings" type="string[]" required>
-  A list of human-readable threat descriptions detected during the scan. Empty when no threats are found.
-</ResponseField>
+## cURL (legado)
 
-<ResponseField name="scannedAt" type="string" required>
-  ISO 8601 timestamp indicating when the scan was performed, e.g., `"2024-01-15T10:30:00Z"`.
-</ResponseField>
-
-<ResponseField name="chain" type="string" required>
-  The chain on which the scan was performed, e.g., `"ethereum"`.
-</ResponseField>
-
-### Example response — HIGH RISK
-
-```json
-{
-  "riskScore": 87,
-  "status": "HIGH RISK",
-  "warnings": [
-    "Infinite approval detected",
-    "Malicious contract detected"
-  ],
-  "scannedAt": "2024-01-15T10:30:00Z",
-  "chain": "ethereum"
-}
-```
-
-### Example response — SAFE
-
-```json
-{
-  "riskScore": 12,
-  "status": "SAFE",
-  "warnings": [],
-  "scannedAt": "2024-01-15T10:30:00Z",
-  "chain": "ethereum"
-}
-```
-
-## Code examples
-
-<CodeGroup>
-
-```bash cURL
-curl -X POST https://api.nzochain.com/api/risk/scan \
-  -H "X-API-Key: pk_live_YOUR_API_KEY" \
+```bash
+curl -X POST "https://api.nzochain.com/api/risk/scan" \
   -H "Content-Type: application/json" \
-  -d '{
-    "wallet": "0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234",
-    "chain": "ethereum",
-    "include_details": true
-  }'
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"wallet":"0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234","network":"ethereum"}'
 ```
 
-```javascript JavaScript
-const response = await fetch('https://api.nzochain.com/api/risk/scan', {
-  method: 'POST',
-  headers: {
-    'X-API-Key': process.env.NZOCHAIN_API_KEY,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    wallet: '0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234',
-    chain: 'ethereum',
-    include_details: true,
-  }),
-});
+## Relacionado
 
-const { riskScore, status, warnings } = await response.json();
-
-if (status === 'HIGH RISK' || status === 'CRITICAL') {
-  console.warn(`Wallet flagged: ${status} (score ${riskScore})`);
-  console.warn('Warnings:', warnings);
-}
-```
-
-```python Python
-import os
-import requests
-
-response = requests.post(
-    'https://api.nzochain.com/api/risk/scan',
-    headers={
-        'X-API-Key': os.environ["NZOCHAIN_API_KEY"],
-        'Content-Type': 'application/json',
-    },
-    json={
-        'wallet': '0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234',
-        'chain': 'ethereum',
-        'include_details': True,
-    },
-)
-
-result = response.json()
-print(f"Risk score: {result['riskScore']} — {result['status']}")
-for warning in result['warnings']:
-    print(f"  • {warning}")
-```
-
-</CodeGroup>
+| Path | Estado |
+|---|---|
+| `POST /api/v1/wallets/risk` | **Recomendado** (B2B) |
+| `POST /api/risk/scan-all` | Legado multi-rede (4 EVM) |
+| `GET /api/wallet/*` | **HTTP 410 Gone** — não usar |
+| `GET /api/wallet/monitor` | **Não existe** em produção |

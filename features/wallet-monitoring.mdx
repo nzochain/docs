@@ -1,10 +1,12 @@
 ---
-title: "Real-Time Wallet Monitoring Across Blockchains"
-description: "NZOChain continuously monitors your connected wallets on Ethereum, BNB Chain, Polygon and Arbitrum, and alerts you when something looks wrong."
+title: "Wallet Monitoring Across Blockchains"
+description: "Opt-in scheduled re-scan every 6 hours on Ethereum, BNB Chain, Polygon and Arbitrum — not real-time or mempool monitoring."
 sidebarTitle: "Wallet Monitoring"
 ---
 
-NZOChain's wallet monitoring is not a one-off audit. Once you add a wallet, the app watches on-chain activity on the **four supported chains**. Alerts go out on the channels included in your [B2C plan](/pricing/individual).
+NZOChain's wallet monitoring is **opt-in**. Once you enable it for a wallet, the platform runs a **scheduled re-scan every 6 hours** on the **four supported EVM chains**. It is **not** real-time, mempool, or event-driven continuous monitoring.
+
+Alerts go out on the channels included in your [B2C plan](/pricing/individual).
 
 ## Alert channels
 
@@ -17,7 +19,7 @@ Different plans unlock additional alert channels. Choose the ones that fit how y
 | Telegram | Pro+ | Ligar em Definições → Notificações |
 
 <Tip>
-  Connect your Telegram account for the fastest possible response time. Telegram alerts arrive within seconds of a threat being detected, while email delivery can take up to a few minutes depending on your mail provider. Set up Telegram under **Settings → Notifications → Telegram**.
+  Connect your Telegram account under **Settings → Notifications → Telegram**. Delivery timing depends on when the next scheduled scan completes and your mail/Telegram provider — not on mempool latency.
 </Tip>
 
 ## How to add and manage monitored wallets
@@ -37,47 +39,46 @@ The number of wallets you can monitor depends on your plan:
     Click **Add Wallet**, then paste the wallet address you want to monitor. You can add any public address — you do not need to connect it with a wallet extension to monitor it.
   </Step>
   <Step title="Select chains to monitor">
-    By default NZOChain monitors Ethereum, BNB Chain, Polygon and Arbitrum.
+    By default NZOChain covers Ethereum, BNB Chain, Polygon and Arbitrum. Solana is **not supported**.
+  </Step>
+  <Step title="Enable scheduled monitoring">
+    Turn on opt-in auto-scan for the wallet. NZOChain will re-scan on the 6-hour schedule and notify you when new risk signals appear.
   </Step>
   <Step title="Configure alert preferences">
-    Choose which alert types trigger notifications for this wallet. You can configure alert sensitivity per wallet under **Wallet Settings → Alerts**.
-  </Step>
-  <Step title="Save and confirm">
-    Click **Start Monitoring**. NZOChain begins scanning immediately and will notify you of any existing risk signals within the first scan cycle.
+    Choose which alert types trigger notifications for this wallet under **Wallet Settings → Alerts**.
   </Step>
 </Steps>
 
 ## Alert types
 
-NZOChain generates targeted alerts so you know exactly what triggered a notification and what to do next.
+NZOChain generates targeted alerts so you know what a scheduled scan found and what to do next.
 
 <CardGroup cols={2}>
   <Card title="New approval detected" icon="eye">
-    Fires when a contract receives a new token approval from your wallet. Includes the contract address, token, and approval amount.
+    Fires when a scan finds a new token approval from your wallet. Includes the contract address, token, and approval amount.
   </Card>
   <Card title="High-risk contract interaction" icon="triangle-exclamation">
-    Fires when your wallet interacts with a contract flagged as malicious, unverified, or linked to known exploits.
+    Fires when a scan finds interaction with a contract flagged as malicious, unverified, or linked to known exploits.
   </Card>
-  <Card title="Phishing attempt blocked" icon="shield">
-    Fires when NZOChain identifies a transaction or signature request originating from a known phishing domain or fake dApp.
+  <Card title="Phishing / denylist match" icon="shield">
+    Fires when a scan matches known phishing domains, fake dApps, or denylisted addresses.
   </Card>
   <Card title="Unusual activity pattern" icon="chart-line">
-    Fires when behavioral anomalies are detected — such as rapid sequential approvals or interactions with newly deployed contracts.
+    Fires when heuristic anomalies are detected — such as rapid sequential approvals or interactions with newly deployed contracts.
   </Card>
 </CardGroup>
 
 ## Cross-chain monitoring
 
-When you add a wallet, NZOChain monitors it on Ethereum, BNB Chain, Polygon and Arbitrum. You do not add the same address separately per chain.
+When you add a wallet, NZOChain can scan it on Ethereum, BNB Chain, Polygon and Arbitrum. You do not add the same address separately per chain.
 
-Each alert clearly identifies which chain the event occurred on, so you always have the full context.
+Each alert identifies which chain the finding relates to.
 
 ## Monitoring frequency
 
-NZOChain operates as a real-time monitoring system, not a scheduled scanner. Threat detection is event-driven — NZOChain watches the mempool and on-chain activity as it happens rather than polling at fixed intervals. This means:
+| Mode | Behavior |
+|------|----------|
+| **Opt-in scheduled** | Re-scan every **6 hours** via cron |
+| **On-demand** | Manual scan from the dashboard or API |
 
-- Approval alerts fire at the moment the transaction is confirmed
-- Phishing warnings appear before you complete a transaction when possible
-- RiskScore™ updates immediately after any relevant on-chain event
-
-There is no minimum polling interval and no delay introduced by the monitoring system itself.
+NZOChain does **not** watch the mempool and does **not** offer continuous event-driven monitoring. Expect alerts after the next successful scheduled (or manual) scan — not at transaction confirmation time.

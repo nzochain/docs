@@ -1,19 +1,21 @@
 ---
-title: "NZOChain: segurança Web3 em tempo real"
-description: "Detecta autorizações perigosas, contratos maliciosos e drainers antes de comprometeres os activos. App B2C e API B2B."
+title: "NZOChain: segurança Web3 para wallets EVM"
+description: "Detecta autorizações perigosas, contratos maliciosos e drainers antes de comprometeres os activos. App B2C e API B2B — quatro redes EVM."
 ---
 
-A NZOChain é infraestrutura de segurança Web3 da ASC AxiomTech. Monitoriza wallets, analisa contratos e permissões, e devolve um veredito **antes** de assinares. **Não-custodial:** nunca temos as tuas chaves.
+A NZOChain é infraestrutura de segurança Web3 da ASC AxiomTech. Analisa wallets, contratos e permissões, e devolve um veredito **antes** de assinares. **Não-custodial:** nunca temos as tuas chaves.
+
+Monitorização de wallets é **opt-in** com re-scan agendado (a cada 6 horas) — não é monitorização em tempo real nem mempool.
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Liga a carteira na app e faz o primeiro scan.
+    App B2C e primeira chamada REST (sem SDK).
   </Card>
   <Card title="Como funciona" icon="shield-halved" href="/how-it-works">
     Pipeline de detecção e RiskScore.
   </Card>
-  <Card title="API v1 Firewall" icon="code" href="/api/v1">
-    analyze, simulate e threats com gating por plano.
+  <Card title="API v1 REST" icon="code" href="/api/v1">
+    wallets/contracts risk, analyze, simulate e threats.
   </Card>
   <Card title="Preços" icon="credit-card" href="/pricing/individual">
     B2C (wallets) e B2B (API).
@@ -30,7 +32,7 @@ A NZOChain é infraestrutura de segurança Web3 da ASC AxiomTech. Monitoriza wal
     Aprovações, contratos e ligações em Ethereum, BNB Chain, Polygon e Arbitrum.
   </Step>
   <Step title="Vês o risco">
-    Safe, Warning, High Risk ou Critical — em linguagem simples.
+    Safe, Warning, High Risk ou Critical — em linguagem simples. Heurístico e advisory.
   </Step>
   <Step title="Revoga o perigoso">
     Tu assinas a revogação na tua wallet.

@@ -1,18 +1,18 @@
 ---
-title: "How NZOChain Detects Web3 Threats and Acts in Real Time"
-description: "Understand NZOChain's real-time analysis pipeline: how it scans approvals, contracts, and wallet connections to generate your RiskScore."
+title: "How NZOChain Detects Web3 Threats"
+description: "Understand NZOChain's analysis pipeline: how it scans approvals, contracts, and wallet connections to generate your RiskScore — on four EVM networks."
 sidebarTitle: "How It Works"
 ---
 
-When you connect a wallet to NZOChain, you're not running a one-time audit. NZOChain continuously watches your on-chain activity and runs every new interaction through the same detection pipeline — the same set of checks that analyzed your wallet during setup. Understanding how that pipeline works helps you interpret your RiskScore, know what to act on, and trust that the platform's alerts are meaningful rather than noisy.
+When you connect a wallet to NZOChain, the platform runs a detection pipeline over your on-chain activity. You can also enable **opt-in scheduled monitoring** (re-scan every 6 hours). Understanding how that pipeline works helps you interpret your RiskScore, know what to act on, and treat alerts as advisory triage — not definitive forensic proof.
 
 <Info>
-  NZOChain is entirely read-only with respect to funds. It never holds private keys. Revokes and other on-chain actions are signed **by you** in your wallet. Scan coverage is **four EVM chains** — see [Networks](/networks/overview).
+  NZOChain is entirely read-only with respect to funds. It never holds private keys. Revokes and other on-chain actions are signed **by you** in your wallet. Scan coverage is **four EVM chains** — see [Networks](/networks/overview). Solana is **not supported**.
 </Info>
 
 ## The detection pipeline
 
-When NZOChain receives a wallet address — whether from a new connection, a scan request, or a real-time trigger — the same four-stage pipeline runs automatically.
+When NZOChain receives a wallet address — from a new connection, an on-demand scan, or a scheduled monitor tick — the same four-stage pipeline runs.
 
 <Steps>
   <Step title="Connect: ingest wallet data">
@@ -22,40 +22,40 @@ When NZOChain receives a wallet address — whether from a new connection, a sca
   </Step>
 
   <Step title="Analyze: run threat detection checks">
-    The ingested data passes through NZOChain's detection engine, which runs four categories of analysis in parallel:
+    The ingested data passes through NZOChain's **rules engine** and multi-source signals (including GoPlus, public denylists, and proprietary triage). Four categories run in parallel:
 
     **Token approval analysis** — Each active approval is evaluated for the approved amount (flagging unlimited/infinite approvals), the age of the approval, whether the approved contract has been flagged as malicious, and whether the approval is still necessary given your recent activity.
 
-    **Smart contract bytecode analysis** — NZOChain disassembles the bytecode of every contract your wallet has interacted with and checks it against known patterns: honeypot logic, hidden transfer functions, self-destruct conditions, and ownership back doors. Contracts that haven't been verified or audited are flagged for additional scrutiny.
+    **Smart contract bytecode analysis** — NZOChain inspects contracts your wallet has interacted with for known patterns: honeypot logic, hidden transfer functions, self-destruct conditions, and ownership back doors. Contracts that haven't been verified or audited are flagged for additional scrutiny.
 
-    **Phishing signature matching** — Your wallet's connection history and incoming transaction sources are cross-referenced against NZOChain's continuously updated database of phishing addresses, fake dApp domains, and known drainer wallet addresses.
+    **Phishing signature matching** — Connection history and incoming transaction sources are cross-referenced against denylists and known phishing / drainer addresses from multiple sources.
 
-    **Wallet connection pattern analysis** — Unusual connection events — such as connecting to an unknown dApp at an unusual hour, or connecting to a site that spoofs a known protocol — are flagged based on behavioral pattern matching.
+    **Wallet connection pattern analysis** — Unusual connection events — such as connecting to an unknown dApp, or to a site that spoofs a known protocol — are flagged with heuristic pattern matching.
   </Step>
 
   <Step title="Score: calculate your RiskScore™">
-    Each threat signal from the analysis stage carries a weighted severity value. NZOChain's scoring model aggregates these signals — accounting for signal type, recency, active vs. historical exposure, and cross-chain risk — into a single RiskScore™ between 0 and 100.
+    Each threat signal carries a weighted severity value. NZOChain's scoring model aggregates these signals — accounting for signal type, recency, active vs. historical exposure, and cross-chain risk — into a single RiskScore™ between 0 and 100.
 
-    The model is trained on on-chain attack data and updated regularly as new threat patterns emerge. A wallet with one low-severity warning from six months ago scores very differently from one with three active infinite approvals to unverified contracts.
+    The model is a **deterministic rules / heuristics engine** enriched with multi-source intel — not AI-powered or fully proprietary ML. A wallet with one low-severity warning from six months ago scores differently from one with three active infinite approvals to unverified contracts.
   </Step>
 
   <Step title="Act: surface findings and enable remediation">
-    Your RiskScore and the full breakdown of findings appear in your dashboard immediately after the pipeline completes. For each flagged item, NZOChain shows you the risk type, severity, affected contract or address, and a recommended action.
+    Your RiskScore and the full breakdown of findings appear in your dashboard after the pipeline completes. For each flagged item, NZOChain shows you the risk type, severity, affected contract or address, and a recommended action.
 
-    Where remediation is possible — revoking an approval, for example — NZOChain provides a one-click action that constructs the necessary transaction and sends it to your wallet for your confirmation. You remain in control of every on-chain action.
+    Where remediation is possible — revoking an approval, for example — NZOChain provides an action that constructs the necessary transaction and sends it to your wallet for your confirmation. You remain in control of every on-chain action.
   </Step>
 </Steps>
 
 ## RiskScore™ levels
 
-Your RiskScore maps to one of four statuses. The thresholds are calibrated so that a Warning is genuinely worth reviewing, and a Critical is a situation that warrants immediate action.
+Your RiskScore maps to one of four statuses. The thresholds are calibrated so that a Warning is genuinely worth reviewing, and a Critical is a situation that warrants immediate action. Scores are **advisory**.
 
 | Score | Status | Description |
 |---|---|---|
 | 0–30 | **Safe** | No significant threats detected. Your approvals and contract interactions appear clean. Continue monitoring. |
 | 31–60 | **Warning** | Some risk signals found — typically older approvals to contracts with limited audit history, or minor phishing flags. Review the findings and revoke anything you no longer use. |
 | 61–85 | **High Risk** | Multiple active threats detected. At least one approval or contract interaction carries significant risk. Revoke the flagged permissions as soon as possible. |
-| 86–100 | **Critical** | Severe exposure. One or more findings indicate an active or near-certain threat to your assets — such as an infinite approval to a known malicious contract. Take action immediately. |
+| 86–100 | **Critical** | Severe exposure. One or more findings indicate elevated threat to your assets — such as an infinite approval to a known malicious contract. Take action immediately. |
 
 ## What NZOChain analyzes
 
@@ -67,16 +67,24 @@ Your RiskScore maps to one of four statuses. The thresholds are calibrated so th
 | Wallet connection events | Unusual sources, spoofed protocols, suspicious connection timing |
 | Transaction history | Interactions with flagged addresses, historical exposure |
 
+## Simulation
+
+Live transaction simulation requires **Tenderly** to be configured. If Tenderly is unavailable or not configured, the API returns **static / degraded** analysis instead of a live simulation result.
+
+## Forensic analysis
+
+Drain / forensic timelines are **heuristic and advisory**. They help triage what may have happened — they are **never** definitive legal or forensic proof.
+
 ## Multi-chain approach
 
-NZOChain monitors all connected chains in parallel. Your overall RiskScore reflects your highest-risk chain — a wallet that is Safe on Ethereum but Critical on Polygon will display a Critical score overall. The dashboard breaks down your score by chain so you can see exactly where the risk originates.
+NZOChain scans the four supported EVM chains. Your overall RiskScore reflects your highest-risk chain — a wallet that is Safe on Ethereum but Critical on Polygon will display a Critical score overall. The dashboard breaks down your score by chain so you can see where the risk originates.
 
-Each supported chain uses the same detection pipeline, with chain-specific RPC and explorers. Current scan networks are Ethereum, BNB Chain, Polygon and Arbitrum only.
+Each supported chain uses the same detection pipeline, with chain-specific RPC and explorers. Current scan networks: **Ethereum, BNB Chain, Polygon, Arbitrum** only. Solana is not supported.
 
-See [Supported Networks](/networks/overview) for the full list of supported blockchains and any chain-specific considerations.
+See [Supported Networks](/networks/overview).
 
-## Real-time monitoring vs. on-demand scans
+## Scheduled monitoring vs. on-demand scans
 
-When you keep NZOChain connected, your wallet is monitored continuously. Any new approval or contract interaction triggers the pipeline automatically — you don't need to manually run a scan. Real-time alerts notify you the moment a new high-risk signal is detected, before you have time to lose assets.
+Opt-in wallet monitoring re-scans on a **6-hour cron** — it is **not** real-time, mempool, or event-driven continuous monitoring. Alerts fire after a scheduled scan finds new risk signals.
 
 On-demand scans are available any time from your dashboard and are useful for auditing a wallet you haven't connected before or checking an address you're about to send funds to.

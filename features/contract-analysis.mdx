@@ -7,7 +7,7 @@ sidebarTitle: "Contract Analysis"
 Before you interact with a smart contract or token, NZOChain inspects it for risk signals that are invisible to the average user. Contract analysis goes beyond checking whether an address is on a known blocklist — it examines the bytecode, ownership structure, and embedded logic to surface hidden dangers like mint backdoors, locked liquidity traps, and proxy upgrade patterns that can drain your funds without warning.
 
 <Note>
-  Contract analysis results are informational and reflect NZOChain's assessment at the time of the scan. Always conduct your own research before signing transactions or committing capital. No automated system can guarantee that a contract is safe.
+  Contract analysis results are **advisory** and reflect NZOChain's heuristic assessment at the time of the scan (rules engine + multi-source signals such as explorers, denylists, and GoPlus where applicable). Always conduct your own research before signing. No automated system can guarantee that a contract is safe — findings are not definitive.
 </Note>
 
 ## What contract analysis checks
@@ -42,7 +42,7 @@ Token contracts receive additional checks on top of standard contract analysis.
     Some tokens include hidden fees, maximum transaction limits, or transfer pause functions that can freeze your holdings unexpectedly.
   </Card>
   <Card title="Honeypot detection" icon="jar">
-    NZOChain simulates buy and sell transactions to detect honeypot contracts where you can buy but cannot sell.
+    NZOChain applies honeypot heuristics and external checks where available. Live transaction simulation (when used) requires Tenderly; otherwise analysis may be static/degraded.
   </Card>
 </CardGroup>
 

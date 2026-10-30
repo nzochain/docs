@@ -1,6 +1,6 @@
 ---
 title: "FAQ"
-description: "Custódia, redes, planos B2C/B2B, API v1 e o que acontece se já assinaste algo suspeito."
+description: "Custódia, redes, planos B2C/B2B, API v1, monitorização 6h, simulação Tenderly e o que acontece se já assinaste algo suspeito."
 sidebarTitle: "FAQ"
 ---
 
@@ -14,27 +14,43 @@ sidebarTitle: "FAQ"
 
 ## O que faço se já assinei algo suspeito?
 
-Corre um scan, vê o que está activo e revoga o perigoso. A simulação ajuda a não repetir o erro na próxima assinatura. Na app: modo “Fui hackeado” para triagem rápida.
+Corre um scan, vê o que está activo e revoga o perigoso. A simulação (live via Tenderly, senão estática/degradada) ajuda a não repetir o erro na próxima assinatura. Na app: modo “Fui hackeado” / forensic para **timeline heurística e advisory** — nunca prova definitiva. 
 
 ## Quantas blockchains estão suportadas?
 
-**Quatro** no produto de scan: Ethereum, BNB Chain, Polygon, Arbitrum. Ver [Redes](/networks/overview).
+**Quatro** EVM no produto de scan: Ethereum, BNB Chain, Polygon, Arbitrum. **Solana não é suportada.** Ver [Redes](/networks/overview).
+
+## A monitorização é em tempo real?
+
+**Não.** É **opt-in**, com re-scan agendado a cada **6 horas**. Não há mempool nem monitorização contínua event-driven.
 
 ## Quais são os planos B2C?
 
-Free ($0, 1 wallet), Basic ($4.99, 3), Pro ($9.99, 10), Premium ($19.99, 50). Monitorização 24/7 em todos. Scans/contratos são limites técnicos. Anual = 2 meses grátis. [Tabela](/pricing/individual).
+Free ($0, 1 wallet), Basic ($4.99, 3), Pro ($9.99, 10), Premium ($19.99, 50). Monitorização opt-in (cron 6h) nos planos. Scans/contratos são limites técnicos. Anual = 2 meses grátis. [Tabela](/pricing/individual).
 
 ## Quais são os planos B2B?
 
-Free (1 000 calls, **sem** Firewall) → Starter $49 → Growth $149 → Business $499 → Enterprise contrato. [Matriz](/pricing/enterprise).
+Free (1 000 calls, **sem** Firewall) → Starter $49 → Growth $149 → Business $499 → Enterprise **pilot-grade** (contrato). Sem SSO/VPC/SLA 99.9 no catálogo actual. [Matriz](/pricing/enterprise).
 
 ## A API bloqueia quando passo o limite de calls?
 
-**Não.** Chamadas extra geram **overage** (preço por call no plano) e são facturadas no ciclo. Simulações **têm quota**: ao esgotar, `403 SIMULATION_QUOTA`. Features de Firewall/threat fora do plano: `403 PLAN_UPGRADE_REQUIRED`.
+**Depende do plano.**
+
+| Plano | Comportamento |
+|---|---|
+| **Free** | Hard cap → `429 RATE_LIMIT` ao atingir a quota (1 000) |
+| **Starter / Growth / Business** | Soft: overage faturado no ciclo; bloqueio só acima de **3×** a quota → `429 HARD_CEILING` |
+| **Enterprise** | Sem teto público (custom) |
+
+Alertas ao dono da key aos **80%** e **100%** (email). Admin (Telegram) quando a key entra em overage. Também existem throttles **globais** e **por path**. Simulações: `403 SIMULATION_QUOTA`. Features fora do plano: `403 PLAN_UPGRADE_REQUIRED`.
 
 ## Como autentico a API?
 
-Header `X-API-Key` com a chave do [portal](https://developers.nzochain.com). Base: `https://api.nzochain.com/api`. Não uses Bearer nas rotas B2B actuais.
+Header `X-API-Key` com a chave do [portal](https://developers.nzochain.com). Base: `https://api.nzochain.com/api`. Não uses Bearer nas rotas B2B actuais. **Não existe SDK oficial publicado** — integra via REST (`curl` / `fetch`). Ver [Quickstart](/quickstart).
+
+## Que webhooks existem?
+
+Só **`revocation.completed`** está live. Outros eventos (ex. `wallet.scan.completed`, `risk.alert`) estão em roadmap. Ver [Webhooks](/api/webhooks).
 
 ## A NZOChain pede seed?
 

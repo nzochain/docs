@@ -1,43 +1,50 @@
 ---
 title: "Planos API (B2B)"
-description: "Free, Starter, Growth, Business e Enterprise — Transaction Firewall, simulação, threat intel e overage."
+description: "Free, Starter, Growth, Business e Enterprise pilot-grade — Firewall, simulação, threat intel e quotas per-key."
 sidebarTitle: "Planos API (B2B)"
 ---
 
 Portal: [developers.nzochain.com](https://developers.nzochain.com) · Contacto Enterprise: [nzochain.com/contact](https://nzochain.com/contact)
 
-O plano **Free** serve para experimentar a API de risco (wallet + contrato). **Não inclui Transaction Firewall** (`analyze` / `simulate`). Chamadas extra **não bloqueiam**: registamos overage e facturamos no fim do ciclo.
+O plano **Free** serve para experimentar a API de risco (wallet + contrato). **Não inclui Transaction Firewall** (`analyze` / `simulate`).
 
 ## Matriz de features
 
 | Feature | Free | Starter | Growth | Business | Enterprise |
 |---|---|---|---|---|---|
-| Preço | $0 | $49 / mês | $149 / mês | $499 / mês | Contrato |
-| API calls / mês | 1 000 | 25 000 | 100 000 | 500 000 | Ilimitado |
+| Preço | $0 | $49 / mês | $149 / mês | $499 / mês | Contacto (pilot-grade) |
+| API calls / mês | 1 000 | 25 000 | 100 000 | 500 000 | Custom |
 | Transaction Firewall | Não | Sim | Sim | Sim | Sim |
-| Simulações / mês | 0 | 100 | 2 000 | 10 000 | Ilimitado |
-| Threat intel | Não | Não | Standard | Completo | Completo + SLA |
-| Overage / call extra | $0.01 | $0.004 | $0.002 | $0.001 | Contrato |
+| Simulações / mês | 0 | 100 | 2 000 | 10 000 | Custom |
+| Threat intel | Não | Não | Standard | Completo | Completo |
+| Webhook live | — | `revocation.completed` | idem (+ roadmap) | idem (+ roadmap) | idem (+ roadmap) |
+
+## Rate limits
+
+- **Global + per-path** throttles
+- **Free**: hard cap → `429 RATE_LIMIT`
+- **Starter / Growth / Business**: overage faturado; teto de segurança **3×** → `429 HARD_CEILING`
+- **Enterprise**: custom / ilimitado
 
 ## O que cada plano desbloqueia em `/api/v1`
 
 | Endpoint | Free | Starter+ | Growth+ |
 |---|---|---|---|
-| `POST /v1/wallets/risk` | Sim (quota de calls) | Sim | Sim |
+| `POST /v1/wallets/risk` | Sim (quota) | Sim | Sim |
 | `POST /v1/contracts/risk` | Sim | Sim | Sim |
 | `POST /v1/transactions/analyze` | **403 PLAN_UPGRADE_REQUIRED** | Sim | Sim |
 | `POST /v1/transactions/simulate` | 403 | Sim, até à quota | Sim |
 | `POST /v1/threats/check` | 403 | 403 | Sim |
 
-Quando a quota de simulação acaba: **403 `SIMULATION_QUOTA`** com `used` e `quota`.  
-Quando a feature não está no plano: **403 `PLAN_UPGRADE_REQUIRED`** com `upgradeUrl` (tipicamente `/pricing` no portal).
-
-Overage de **API calls** é registado (`UsageOverage`) **sem bloquear** o pedido.
+Quando a quota de simulação acaba: **403 `SIMULATION_QUOTA`**.  
+Quando a feature não está no plano: **403 `PLAN_UPGRADE_REQUIRED`**.
 
 ## Notas
 
-- Autenticação das rotas v1: header `X-API-Key` (chave `pk_live_...` gerada no portal).
+- Autenticação: header `X-API-Key`
 - Base URL: `https://api.nzochain.com/api`
-- Enterprise: SLA, volume e integrações à medida — [contacto](https://nzochain.com/contact).
+- Redes: Ethereum, BNB, Polygon, Arbitrum (4 EVM)
+- Simulação live requer Tenderly; senão análise estática/degradada
+- Enterprise: **pilot-grade** — sem SSO / VPC / SLA 99.9% públicos
 
 Documentação do contrato: [API v1 Firewall](/api/v1).

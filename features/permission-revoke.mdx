@@ -74,7 +74,7 @@ If you have accumulated many approvals — common after months of DeFi activity 
     Your wallet will prompt you to sign one transaction per approval. Each revocation is an individual on-chain transaction and requires a separate confirmation. Sign each one as they appear.
   </Step>
   <Step title="Monitor progress">
-    NZOChain tracks the status of each revocation in real time. Completed revocations are removed from the list as each transaction confirms.
+    NZOChain updates each revocation's status as its on-chain confirmation is observed. Completed revocations leave the list once confirmed.
   </Step>
 </Steps>
 
@@ -84,7 +84,7 @@ Revoking an approval submits a transaction to the blockchain that sets the appro
 
 - The spender contract can no longer transfer that token from your wallet
 - The approval no longer appears in your NZOChain Approval Manager
-- Your RiskScore™ recalculates automatically and typically decreases
+- Your RiskScore™ updates on the next scan (on-demand or scheduled)
 - The change is permanent on-chain — the protocol cannot re-assume the approval without you signing a new one
 
 Revocation does not affect your token balance. Your tokens stay in your wallet; you are only removing the contract's permission to move them.

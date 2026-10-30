@@ -1,10 +1,12 @@
 ---
-title: "RiskScore™: AI-Powered Wallet Threat Scoring"
-description: "NZOChain's RiskScore™ assigns a 0–100 threat level to your wallet based on approvals, contracts, and activity patterns. Learn what each score means."
+title: "RiskScore™: Heuristic Wallet Threat Scoring"
+description: "NZOChain's RiskScore™ assigns a 0–100 threat level using a rules engine plus multi-source signals (GoPlus, public denylists, proprietary triage). Advisory only."
 sidebarTitle: "RiskScore™"
 ---
 
-Your RiskScore™ is a live, composite number between 0 and 100 that reflects the current threat exposure of your wallet. Unlike a one-time security check, the score updates continuously as NZOChain detects new approvals, contract interactions, and behavioral signals. A lower score means your wallet is clean; a higher score means action is needed.
+Your RiskScore™ is a composite number between 0 and 100 that reflects the current threat exposure of your wallet based on the latest scan. The score updates when you run an on-demand scan or when opt-in monitoring completes a scheduled re-scan (every 6 hours). A lower score means your wallet looks clean; a higher score means action is needed.
+
+Scores are **advisory triage** — not a certified or definitive threat verdict.
 
 ## Score bands and what they mean
 
@@ -18,12 +20,12 @@ NZOChain maps every score to one of four bands, each with a clear recommended re
 | 86–100 | Critical | Active threats requiring immediate action | Act now — revoke all dangerous approvals and disconnect from suspicious dApps |
 
 <Warning>
-  A Critical score (86–100) means NZOChain has detected active threats against your wallet. Do not sign any new transactions until you have reviewed and resolved the flagged issues. Go to your **Approval Manager** and revoke dangerous permissions immediately.
+  A Critical score (86–100) means NZOChain has detected elevated threats against your wallet. Do not sign any new transactions until you have reviewed and resolved the flagged issues. Go to your **Approval Manager** and revoke dangerous permissions immediately.
 </Warning>
 
 ## What contributes to your score
 
-Your RiskScore™ is calculated from multiple threat signals simultaneously. NZOChain weighs each factor based on severity and combines them into a single score.
+Your RiskScore™ is calculated from multiple threat signals. NZOChain weighs each factor based on severity and combines them into a single score via a **rules / heuristics engine**.
 
 <CardGroup cols={2}>
   <Card title="Active approvals" icon="key">
@@ -36,17 +38,19 @@ Your RiskScore™ is calculated from multiple threat signals simultaneously. NZO
     Connections to domains or contracts that match known phishing infrastructure, fake dApps, or address-spoofing patterns.
   </Card>
   <Card title="Behavioral anomalies" icon="chart-line">
-    Unusual activity patterns such as rapid approval sequences, transactions to newly deployed contracts, or signs of front-running bots.
+    Unusual activity patterns such as rapid approval sequences or transactions to newly deployed contracts.
   </Card>
 </CardGroup>
 
-## AI-powered analysis
+## How scoring works (threat intel)
 
-<Info>
-  AI-powered analysis is available on the **Premium** plan.
-</Info>
+NZOChain uses a **rules engine + multi-source signals**:
 
-On the Premium plan, NZOChain applies advanced machine-learning models to your wallet's activity history. These models detect threats that have no known signature — emerging attack patterns, obfuscated malicious contracts, and zero-day phishing campaigns. Standard analysis relies on known threat databases; AI analysis extends coverage to novel and evolving threats your wallet may not have encountered before.
+- Proprietary triage rules (approvals, bytecode heuristics, connection patterns)
+- **GoPlus** security flags
+- Public denylists and known-bad address lists
+
+This is **not** AI-powered analysis and **not** a fully proprietary ML model. Premium plans may unlock richer history and higher scan limits — not a separate “AI RiskScore” engine.
 
 ## RiskScore history
 
@@ -54,21 +58,20 @@ On the Premium plan, NZOChain applies advanced machine-learning models to your w
   RiskScore history is available on the **Pro** and **Premium** plans.
 </Info>
 
-Pro and Premium users can view a full timeline of their RiskScore over time. History lets you:
+Pro and Premium users can view a timeline of their RiskScore over time. History lets you:
 
-- Identify exactly when your score changed and what caused the change
+- Identify when your score changed and what caused the change
 - Track the impact of revoking approvals or removing risky connections
-- Audit wallet activity for a specific period, useful for compliance or personal review
+- Review wallet activity for a period (personal audit — not legal forensics)
 
 The history view is accessible from your dashboard under **Wallet Overview → Score History**.
 
 ## How scores update
 
-Your RiskScore™ recalculates in real time whenever:
+Your RiskScore™ recalculates when:
 
-- A new token approval is detected on any monitored chain
-- You interact with a contract that has risk signals
-- NZOChain's threat database adds a new entry matching your wallet's connections
-- A phishing or drainer campaign is identified that targets contracts you've interacted with
+- You run an on-demand scan
+- Opt-in monitoring completes a **6-hour** scheduled re-scan and finds new signals
+- Threat / denylist data used in the next scan includes new matches for your wallet's connections
 
-You do not need to manually refresh or re-scan — the score stays current automatically.
+It does **not** update in real time from mempool or push events. Refresh via scan or wait for the next monitor tick.

@@ -12,6 +12,11 @@
     "light": "/favicon-light.svg",
     "dark": "/favicon.svg"
   },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://nzochain.com"
+  },
   "navbar": {
     "primary": {
       "type": "button",
@@ -28,6 +33,7 @@
     "tabs": [
       {
         "tab": "Documentation",
+        "icon": "book-open",
         "groups": [
           {
             "group": "Get Started",
@@ -69,6 +75,7 @@
       },
       {
         "tab": "API Reference",
+        "icon": "code",
         "groups": [
           {
             "group": "Overview",
@@ -79,16 +86,15 @@
             ]
           },
           {
-            "group": "API v1 Firewall",
-            "pages": ["api/v1"]
+            "group": "API v1",
+            "pages": ["api/v1", "api/webhooks"]
           },
           {
-            "group": "Legacy endpoints",
+            "group": "Legacy / retired",
             "pages": [
               "api/risk-scan",
               "api/wallet-monitor",
-              "api/bulk-scan",
-              "api/webhooks"
+              "api/bulk-scan"
             ]
           }
         ]

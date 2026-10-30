@@ -22,14 +22,14 @@ A NZOChain é **read-only** em relação aos fundos. Nunca temos chaves, seed ph
 
 ## Quatro pilares
 
-1. **Monitorização** das wallets ligadas (planos B2C 24/7).
-2. **RiskScore** — Safe / Warning / High Risk / Critical (e decisão API `ALLOW | REVIEW | BLOCK`).
+1. **Monitorização** opt-in das wallets (re-scan a cada **6h** — não tempo real / mempool).
+2. **RiskScore** heurístico — Safe / Warning / High Risk / Critical (e decisão API `ALLOW | REVIEW | BLOCK`). Rules + multi-source; não AI-powered.
 3. **Revogação** de permissões perigosas, assinada por ti.
-4. **Simulação** de transacção (B2C nos planos superiores; B2B na API v1 com quota).
+4. **Simulação** de transacção (live via Tenderly; senão estática/degradada; B2B com quota).
 
 ## Redes (produto actual)
 
-Scan e revogação cobrem **4 chains**: Ethereum, BNB Chain, Polygon, Arbitrum. Não afirmamos “30+ chains” no produto de scan.
+Scan e revogação cobrem **4 chains EVM**: Ethereum, BNB Chain, Polygon, Arbitrum. **Solana não é suportada.** Não afirmamos “30+ chains”.
 
 Wallets: MetaMask, WalletConnect e outras via o conector da app.
 
@@ -43,11 +43,11 @@ Preços: [individuais](/pricing/individual) · [API B2B](/pricing/enterprise).
   <Card title="Quickstart" icon="rocket" href="/quickstart">
     Liga a carteira na app e corre o primeiro scan.
   </Card>
-  <Card title="API v1" icon="code" href="/api/v1">
-    Transaction Firewall para dApps e wallets.
+  <Card title="API v1 REST" icon="code" href="/api/v1">
+    Integração B2B sem SDK — X-API-Key + HTTP.
   </Card>
   <Card title="Planos B2C" icon="wallet" href="/pricing/individual">
-    Wallets e monitorização 24/7.
+    Wallets e monitorização opt-in (6h).
   </Card>
   <Card title="Planos B2B" icon="building" href="/pricing/enterprise">
     Firewall, simulação e threat intel.

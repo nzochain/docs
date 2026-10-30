@@ -1,31 +1,48 @@
 ---
 title: "Autenticação da API"
-description: "Usa X-API-Key com a chave do portal de developers. Não coloques a chave no frontend público."
+description: "X-API-Key com a chave do portal. Scopes wallet.scan, contract.scan, transaction.analyze e threat.check."
 sidebarTitle: "Authentication"
 ---
 
-As rotas B2B (`/api/v1/...` e a maior parte do `/api` de developers) exigem o header:
+As rotas B2B (`/api/v1/...`) exigem o header:
 
 ```
-X-API-Key: pk_live_...
+X-API-Key: YOUR_API_KEY
 ```
 
-Não é sessão cookie e **não** é `Authorization: Bearer` nestas rotas.
+Não é sessão cookie e **não** é `Authorization: Bearer` nestas rotas de produto.
+
+A gestão de projectos, keys e webhooks no portal usa a **sessão JWT do developer** — contrato separado da API key de produto.
 
 ## Obter a chave
 
 1. Entra em [developers.nzochain.com](https://developers.nzochain.com).
 2. Cria um projecto.
-3. Gera uma API key e guarda-a — trata-a como segredo.
+3. Gera uma API key (`pk_live_...`) e guarda-a — trata-a como segredo.
+
+Keys novas recebem por omissão os scopes de produto v1 (inclui `wallet.scan`). Podes restringir permissões no portal.
 
 A app B2C ([app.nzochain.com](https://app.nzochain.com)) **não** usa esta chave: usa ligação de carteira.
+
+## Scopes (v1)
+
+| Scope | Endpoint |
+|---|---|
+| `wallet.scan` | `POST /v1/wallets/risk` |
+| `contract.scan` | `POST /v1/contracts/risk` |
+| `transaction.analyze` | `POST /v1/transactions/analyze` e `.../simulate` |
+| `threat.check` | `POST /v1/threats/check` |
+
+Sem o scope exigido → **403** com `SCOPE_REQUIRED` e o campo `required`.
+
+O gating de **plano** (Free vs Starter vs Growth) é independente do scope: podes ter o scope e mesmo assim receber `PLAN_UPGRADE_REQUIRED`.
 
 ## Exemplo
 
 ```bash
 curl -X POST "https://api.nzochain.com/api/v1/wallets/risk?lang=pt" \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: pk_live_SUA_CHAVE" \
+  -H "X-API-Key: YOUR_API_KEY" \
   -d '{"wallet":"0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234","network":"ethereum"}'
 ```
 
@@ -46,11 +63,13 @@ const { success, data } = await res.json();
 | HTTP | Significado |
 |---|---|
 | 401 | `X-API-Key` em falta, inválida ou revogada |
+| 403 | `SCOPE_REQUIRED` — scope em falta na key |
 
-403 de **plano** (`PLAN_UPGRADE_REQUIRED`, `SIMULATION_QUOTA`) são outra coisa — ver [erros](/api/errors).
+403 de **plano** (`PLAN_UPGRADE_REQUIRED`, `SIMULATION_QUOTA`) e 429 de **quota** são outra camada — ver [erros](/api/errors).
 
 ## Boas práticas
 
 - Só no servidor. Nunca no JavaScript do browser de um dApp público.
 - Variável de ambiente. Roda chaves se vazarem.
 - Uma chave por ambiente (dev / prod).
+- Não existe SDK oficial publicado — usa REST/`fetch`/`curl`.

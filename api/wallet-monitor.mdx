@@ -1,150 +1,30 @@
 ---
-title: "GET /api/wallet/monitor — Monitoring Status"
-description: "Retrieve the current monitoring status and latest threat summary for a wallet address registered with NZOChain. Returns live risk data."
-sidebarTitle: "Wallet Monitor"
+title: "Wallet monitor (deprecated)"
+description: "The legacy /api/wallet/* stubs are retired (HTTP 410). Use POST /api/v1/wallets/risk."
+sidebarTitle: "Wallet Monitor (deprecated)"
 ---
 
-The wallet monitor endpoint returns the current monitoring status and the most recent threat summary for a given wallet address. Unlike the risk scan endpoint, which performs an on-demand analysis, this endpoint reads from NZOChain's continuous monitoring system — giving you the latest cached risk data, active approval counts, and any recent alerts without consuming an additional scan call.
+<Warning>
+  **Deprecated.** There is no production `GET /api/wallet/monitor` endpoint.
+  Legacy `/api/wallet/*` routes return **HTTP 410 Gone**. Use the API v1 firewall instead.
+</Warning>
 
-## Endpoint
+## Replacement
 
 ```
-GET https://api.nzochain.com/api/wallet/monitor?wallet=0x...
+POST https://api.nzochain.com/api/v1/wallets/risk
+Header: X-API-Key: pk_live_...
+Body: { "wallet": "0x...", "network": "ethereum" }
 ```
 
-## Query parameters
+See [API v1](/api/v1) and [authentication](/api/authentication).
 
-<ParamField query="wallet" type="string" required>
-  The wallet address to retrieve monitoring status for. Accepts EVM addresses and Solana public keys.
-</ParamField>
+For multi-network approval inventory (legacy live surface, not under `/wallet`):
 
-<ParamField query="chain" type="string">
-  Filter results to a specific chain, e.g., `"ethereum"` or `"polygon"`. Omit to return data from all monitored chains.
-</ParamField>
-
-## Response fields
-
-<ResponseField name="wallet" type="string" required>
-  The queried wallet address, echoed back in the response.
-</ResponseField>
-
-<ResponseField name="isMonitored" type="boolean" required>
-  Whether this wallet is currently enrolled in continuous monitoring.
-</ResponseField>
-
-<ResponseField name="currentRiskScore" type="number" required>
-  The most recent RiskScore™ for this wallet, on a scale of 0 to 100.
-</ResponseField>
-
-<ResponseField name="status" type="string" required>
-  Current threat status. One of `"SAFE"`, `"WARNING"`, `"HIGH RISK"`, or `"CRITICAL"`.
-</ResponseField>
-
-<ResponseField name="lastChecked" type="string" required>
-  ISO 8601 timestamp of when NZOChain last scanned this wallet.
-</ResponseField>
-
-<ResponseField name="activeApprovals" type="number" required>
-  The number of active token approvals currently detected on this wallet.
-</ResponseField>
-
-<ResponseField name="alerts" type="object[]" required>
-  A list of recent alert objects generated for this wallet.
-
-  <Expandable title="alert properties">
-    <ResponseField name="type" type="string">
-      The category of the alert, e.g., `"INFINITE_APPROVAL"` or `"MALICIOUS_CONTRACT"`.
-    </ResponseField>
-    <ResponseField name="severity" type="string">
-      Severity level: `"LOW"`, `"MEDIUM"`, `"HIGH"`, or `"CRITICAL"`.
-    </ResponseField>
-    <ResponseField name="message" type="string">
-      Human-readable description of the detected threat.
-    </ResponseField>
-    <ResponseField name="detectedAt" type="string">
-      ISO 8601 timestamp of when the alert was generated.
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
-## Example response
-
-```json
-{
-  "wallet": "0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234",
-  "isMonitored": true,
-  "currentRiskScore": 63,
-  "status": "HIGH RISK",
-  "lastChecked": "2024-01-15T10:28:00Z",
-  "activeApprovals": 4,
-  "alerts": [
-    {
-      "type": "INFINITE_APPROVAL",
-      "severity": "HIGH",
-      "message": "Infinite token approval granted to unverified contract",
-      "detectedAt": "2024-01-15T09:45:00Z"
-    },
-    {
-      "type": "SUSPICIOUS_INTERACTION",
-      "severity": "MEDIUM",
-      "message": "Interaction with contract flagged in threat intelligence feed",
-      "detectedAt": "2024-01-14T17:22:00Z"
-    }
-  ]
-}
+```
+POST https://api.nzochain.com/api/risk/scan-all
 ```
 
-## Code examples
+## Why this page changed
 
-<CodeGroup>
-
-```bash cURL
-curl -G https://api.nzochain.com/api/wallet/monitor \
-  -H "X-API-Key: pk_live_YOUR_API_KEY" \
-  --data-urlencode "wallet=0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234" \
-  --data-urlencode "chain=ethereum"
-```
-
-```javascript JavaScript
-const params = new URLSearchParams({
-  wallet: '0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234',
-  chain: 'ethereum',
-});
-
-const response = await fetch(
-  `https://api.nzochain.com/api/wallet/monitor?${params}`,
-  {
-    headers: {
-      'X-API-Key': process.env.NZOCHAIN_API_KEY,
-    },
-  }
-);
-
-const data = await response.json();
-console.log(`Monitored: ${data.isMonitored}, Score: ${data.currentRiskScore}`);
-```
-
-```python Python
-import os
-import requests
-
-response = requests.get(
-    'https://api.nzochain.com/api/wallet/monitor',
-    headers={
-        'X-API-Key': os.environ["NZOCHAIN_API_KEY"],
-    },
-    params={
-        'wallet': '0x742d35Cc6634C0532925a3b8D4C9B5e55d7b1234',
-        'chain': 'ethereum',
-    },
-)
-
-data = response.json()
-print(f"Status: {data['status']}, Active approvals: {data['activeApprovals']}")
-```
-
-</CodeGroup>
-
-<Note>
-  Wallet monitoring must be enabled before this endpoint returns data. Enable monitoring from the NZOChain dashboard under **Wallets → Add Wallet**, or by connecting a wallet via the dashboard. Once monitoring is active, this endpoint returns live risk data for the address.
-</Note>
+Older drafts documented `/api/wallet/monitor` as continuous / real-time monitoring. That path was never a real production controller. Product monitoring today is **opt-in scheduled re-scan every 6 hours** in the B2C app — not mempool or event-driven continuous monitoring, and **not** exposed as a public `/api/wallet/*` API.

@@ -25,6 +25,12 @@ App B2C, portal e landing: **PT (default) · EN · ES · FR · ZH · HI**. A esc
 
 `GET https://api.nzochain.com/api/stats/public` devolve métricas de **produto** (scans, contratos, 4 blockchains, revogações, utilizadores). Empresas e scans via API **não** são públicos — ficam no painel interno.
 
+## Integração de developers
+
+- Chamadas de produto: **REST** em `https://api.nzochain.com/api` com header **`X-API-Key`**.
+- Contrato recomendado: **API v1** (`/api/v1/...`). Ver [Quickstart](/quickstart) e [API v1](/api/v1).
+- **Não existe SDK oficial publicado** (npm `@nzochain/sdk` / classe `NzochainClient`). Integra com `curl`, `fetch` ou o cliente HTTP da tua stack.
+
 ## O que não somos
 
 - Não somos custódia. Não movemos fundos.

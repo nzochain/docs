@@ -1,10 +1,10 @@
 ---
 title: "Supported Wallets and Connection Methods"
-description: "Connect MetaMask, WalletConnect, Phantom, Trust Wallet, or Coinbase Wallet to NZOChain for real-time protection at the exact signing moment."
+description: "Connect MetaMask, WalletConnect, Trust Wallet, or Coinbase Wallet to NZOChain for EVM scan protection on four networks. Solana is not supported."
 sidebarTitle: "Wallet Integrations"
 ---
 
-NZOChain integrates with the most widely used Web3 wallets so you can activate threat protection without changing how you transact. Your existing wallet stays in place — NZOChain connects alongside it to monitor your activity and alert you when a transaction carries risk.
+NZOChain integrates with widely used Web3 wallets so you can activate threat protection without changing how you transact. Your existing wallet stays in place — NZOChain connects alongside it to scan your activity and alert you when risk signals appear.
 
 ## Supported wallets
 
@@ -15,9 +15,9 @@ NZOChain integrates with the most widely used Web3 wallets so you can activate t
 | Trust Wallet | Mobile | EVM via WC | WalletConnect |
 | Coinbase Wallet | Browser / mobile | EVM via WC | WalletConnect |
 
-Phantom / Solana **não** entram no scan actual das 4 chains EVM. Se a UI listar Phantom, trata-se de conector — não de cobertura Solana no motor.
+**Solana is not supported.** Phantom / Solana do **not** enter the current scan product for the 4 EVM chains. If the UI lists Phantom, treat it as a connector only — not Solana coverage in the engine.
 
-MetaMask and Phantom use direct browser extension connections, which allows NZOChain to intercept and analyze transactions at the moment they are submitted — before you confirm them. WalletConnect-based wallets (Trust Wallet, Coinbase Wallet) connect via QR code scan or deep link and receive the same real-time analysis through NZOChain's WalletConnect integration layer.
+MetaMask uses a direct browser extension connection. WalletConnect-based wallets (Trust Wallet, Coinbase Wallet) connect via QR code or deep link. After connection, NZOChain runs on-demand scans and optional **6-hour** scheduled monitoring — not mempool interception at signing time.
 
 ## How to connect your wallet
 
@@ -29,10 +29,10 @@ MetaMask and Phantom use direct browser extension connections, which allows NZOC
     Choose your wallet from the list of supported providers. If you use a mobile wallet, select WalletConnect to generate a QR code.
   </Step>
   <Step title="Approve the read-only connection">
-    Your wallet will prompt you to approve the connection. NZOChain only requests read access — no signing permission is requested or required.
+    Your wallet will prompt you to approve the connection. NZOChain only requests read access — no signing permission is requested or required for connection.
   </Step>
-  <Step title="Protection activates automatically">
-    Once connected, NZOChain begins scanning your wallet's activity, approvals, and contract interactions. Your RiskScore™ loads within seconds.
+  <Step title="Scan starts">
+    Once connected, NZOChain scans your wallet's activity, approvals, and contract interactions on the four supported EVM networks. Your RiskScore™ loads after the scan completes.
   </Step>
 </Steps>
 
@@ -47,5 +47,5 @@ Your private key and seed phrase never leave your wallet. NZOChain does not stor
 </Warning>
 
 <Note>
-  NZOChain protection activates at the exact moment you're about to sign a transaction. When you initiate a transaction in your wallet, NZOChain analyzes the destination contract, approval scope, and risk signals in real time — and alerts you before you confirm, so you can review or cancel before any action is taken on-chain.
+  Use on-demand scan or opt-in 6h monitoring to refresh risk signals. NZOChain does not provide continuous real-time / mempool blocking at the signing moment.
 </Note>
