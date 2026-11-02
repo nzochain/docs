@@ -4,9 +4,19 @@ description: "Opt-in scheduled re-scan every 6 hours on Ethereum, BNB Chain, Pol
 sidebarTitle: "Wallet Monitoring"
 ---
 
-NZOChain's wallet monitoring is **opt-in**. Once you enable it for a wallet, the platform runs a **scheduled re-scan every 6 hours** on the **four supported EVM chains**. It is **not** real-time, mempool, or event-driven continuous monitoring.
+NZOChain's wallet monitoring is **opt-in** and **off by default** (`autoScanEnabled` defaults to `false`). Enabling it does **not** turn on automatic scans for every user or every plan — only wallets/accounts where the preference is explicitly turned on are eligible for the scheduler.
 
-Alerts go out on the channels included in your [B2C plan](/pricing/individual).
+When enabled, the backend defines a **6-hour cron** (`0 */6 * * *`) that queues re-scans on the **four supported EVM chains**. This is **not** real-time, mempool, 24/7, or event-driven continuous monitoring. Whether a given production instance is currently firing that cron depends on runtime health (for example Redis/queue readiness); treat “scheduled every 6h” as the product design, not a guarantee that every wallet is always scanned automatically.
+
+### Distinguish these modes
+
+| Mode | Who starts it | What it is |
+|------|---------------|------------|
+| **On-demand scan** | User or API client | Analysis runs because a request was made |
+| **Opt-in scheduled re-scan** | Scheduler, only if enabled | Periodic re-scan on the 6h cron for opted-in accounts |
+| **Real-time / mempool** | — | **Not offered** |
+
+Alerts go out on the channels included in your [B2C plan](/pricing/individual), after a scan completes — not at the exact signing moment.
 
 ## Alert channels
 
@@ -42,7 +52,7 @@ The number of wallets you can monitor depends on your plan:
     By default NZOChain covers Ethereum, BNB Chain, Polygon and Arbitrum. Solana is **not supported**.
   </Step>
   <Step title="Enable scheduled monitoring">
-    Turn on opt-in auto-scan for the wallet. NZOChain will re-scan on the 6-hour schedule and notify you when new risk signals appear.
+    Turn on opt-in auto-scan (disabled by default). Only after this preference is enabled is the account eligible for the 6-hour re-scan schedule. Notifications follow completed scans, not mempool events.
   </Step>
   <Step title="Configure alert preferences">
     Choose which alert types trigger notifications for this wallet under **Wallet Settings → Alerts**.
@@ -55,16 +65,16 @@ NZOChain generates targeted alerts so you know what a scheduled scan found and w
 
 <CardGroup cols={2}>
   <Card title="New approval detected" icon="eye">
-    Fires when a scan finds a new token approval from your wallet. Includes the contract address, token, and approval amount.
+    Reported when a completed scan finds a new token approval from your wallet. Includes the contract address, token, and approval amount.
   </Card>
   <Card title="High-risk contract interaction" icon="triangle-exclamation">
-    Fires when a scan finds interaction with a contract flagged as malicious, unverified, or linked to known exploits.
+    Reported when a completed scan finds interaction with a contract flagged as malicious, unverified, or linked to known exploits.
   </Card>
   <Card title="Phishing / denylist match" icon="shield">
-    Fires when a scan matches known phishing domains, fake dApps, or denylisted addresses.
+    Reported when a completed scan matches known phishing domains, fake dApps, or denylisted addresses.
   </Card>
   <Card title="Unusual activity pattern" icon="chart-line">
-    Fires when heuristic anomalies are detected — such as rapid sequential approvals or interactions with newly deployed contracts.
+    Reported when a completed scan finds heuristic anomalies — such as rapid sequential approvals or interactions with newly deployed contracts.
   </Card>
 </CardGroup>
 
@@ -78,7 +88,7 @@ Each alert identifies which chain the finding relates to.
 
 | Mode | Behavior |
 |------|----------|
-| **Opt-in scheduled** | Re-scan every **6 hours** via cron |
-| **On-demand** | Manual scan from the dashboard or API |
+| **Opt-in scheduled** | Re-scan every **6 hours** via cron — **only** if `autoScanEnabled` is on (default **off**) |
+| **On-demand** | Manual scan from the dashboard or API — always an explicit request |
 
 NZOChain does **not** watch the mempool and does **not** offer continuous event-driven monitoring. Expect alerts after the next successful scheduled (or manual) scan — not at transaction confirmation time.
