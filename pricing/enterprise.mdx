@@ -19,12 +19,18 @@ O plano **Free** serve para experimentar a API de risco (wallet + contrato). **N
 | Threat intel | Não | Não | Standard | Completo | Completo |
 | Webhook live | — | `revocation.completed` | idem (+ roadmap) | idem (+ roadmap) | idem (+ roadmap) |
 
-## Rate limits
+## Rate limits e overage
 
-- **Global + per-path** throttles
-- **Free**: hard cap → `429 RATE_LIMIT`
-- **Starter / Growth / Business**: overage faturado; teto de segurança **3×** → `429 HARD_CEILING`
-- **Enterprise**: custom / ilimitado
+- **Global + per-path** throttles (infra)
+- **Free**: **hard cap** na quota mensal → `429 RATE_LIMIT` (sem overage pago)
+- **Starter**: overage **$0.004**/call até **3×** a quota; depois `429 HARD_CEILING`
+- **Growth**: overage **$0.002**/call até **3×**; depois `429 HARD_CEILING`
+- **Business**: overage **$0.001**/call até **3×**; depois `429 HARD_CEILING`
+- **Enterprise**: quotas e overage **sob contrato** (pilot-grade) — **não** anunciar “unlimited” genérico
+
+Reset mensal das quotas de API calls: **início do mês UTC**.
+
+Esgotar a quota **não** expira a API Key. A key só deixa de autenticar se estiver revogada, inactiva ou com `expiresAt` opcional ultrapassado. A quota mensal segue o **plano da conta B2B** (dono da subscrição).
 
 ## O que cada plano desbloqueia em `/api/v1`
 

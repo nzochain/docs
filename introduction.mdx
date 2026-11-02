@@ -1,6 +1,6 @@
 ---
 title: "NZOChain: vê o risco antes de assinar"
-description: "Infraestrutura de segurança Web3 não-custodial. Monitoriza wallets, detecta autorizações perigosas e contratos maliciosos — sem nunca ter as tuas chaves."
+description: "Infraestrutura de segurança Web3 não-custodial. Scan on-demand e re-scan opt-in, RiskScore heurístico e revogação assinada na carteira — sem nunca ter as tuas chaves."
 sidebarTitle: "Introdução"
 ---
 
@@ -22,9 +22,9 @@ A NZOChain é **read-only** em relação aos fundos. Nunca temos chaves, seed ph
 
 ## Quatro pilares
 
-1. **Monitorização** opt-in das wallets (re-scan a cada **6h** — não tempo real / mempool).
-2. **RiskScore** heurístico — Safe / Warning / High Risk / Critical (e decisão API `ALLOW | REVIEW | BLOCK`). Rules + multi-source; não AI-powered.
-3. **Revogação** de permissões perigosas, assinada por ti.
+1. **Scan on-demand** e **re-scan agendado opt-in** (cron **6h**, **desligado por omissão** — não tempo real / 24/7 / mempool).
+2. **RiskScore** heurístico — Safe / Warning / High Risk / Critical (e decisão API `ALLOW | REVIEW | BLOCK`). Rules + multi-source; **não** AI-powered / ML de produto.
+3. **Revogação** de permissões perigosas: tu assinas na carteira; efeito só após confirmação on-chain.
 4. **Simulação** de transacção (live via Tenderly; senão estática/degradada; B2B com quota).
 
 ## Redes (produto actual)
