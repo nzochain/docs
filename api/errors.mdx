@@ -37,10 +37,17 @@ Exemplo:
 | Plano | Comportamento |
 |---|---|
 | **Free** | **Hard cap.** Ao ultrapassar a quota mensal → **`429 RATE_LIMIT`** (`limit`, `used`, `resetAt`). Sem overage pago. |
-| **Starter / Growth / Business** | Overage **faturado** até **3×** a quota (pedido continua). Acima do teto → **`429 HARD_CEILING`** (`limit`, `used`, `resetAt`, `upgradeUrl`). |
-| **Enterprise** | Custom / ilimitado sob contrato (pilot-grade). |
+| **Starter** | Overage **$0.004**/call até **3×**; depois **`429 HARD_CEILING`**. |
+| **Growth** | Overage **$0.002**/call até **3×**; depois **`429 HARD_CEILING`**. |
+| **Business** | Overage **$0.001**/call até **3×**; depois **`429 HARD_CEILING`**. |
+| **Enterprise** | Quotas / overage **sob contrato** (pilot-grade) — sem “unlimited” genérico no catálogo público. |
 
-Não digas que “calls extra nunca bloqueiam” — isso era incorrecto para Free e para o teto 3× dos planos pagos.
+Corpo típico do 429 inclui `limit`, `used`, `resetAt` (e `upgradeUrl` no `HARD_CEILING`).  
+`resetAt` aponta para o **início do próximo mês UTC**.
+
+**Quota ≠ expiração da key.** Um `429` de volume não significa que a API Key expirou. Expiração é um campo opcional (`expiresAt`); revogação/inactivação é outro estado. A quota mensal está ligada ao **plano da conta B2B** responsável pela subscrição (não “a key em si” como entidade de faturação).
+
+Não digas que “calls extra nunca bloqueiam” — incorrecto para Free e para o teto 3× dos planos pagos.
 
 ## Outros
 

@@ -67,6 +67,13 @@ const { success, data } = await res.json();
 
 403 de **plano** (`PLAN_UPGRADE_REQUIRED`, `SIMULATION_QUOTA`) e 429 de **quota** são outra camada — ver [erros](/api/errors).
 
+## Quota vs expiração da key
+
+- A **quota mensal de API calls** segue o **plano da conta B2B** (subscrição do dono).
+- Esgotar a quota → tipicamente `429 RATE_LIMIT` (Free) ou `429 HARD_CEILING` (pagos após 3×) — a key **continua válida** para autenticação.
+- A key só falha auth (`401`) se estiver ausente/inválida, **revogada**, inactiva, ou com **`expiresAt`** opcional no passado.
+- Rate limits de infra (janela curta) são uma camada adicional — ver [erros](/api/errors) e [overview](/api/overview).
+
 ## Boas práticas
 
 - Só no servidor. Nunca no JavaScript do browser de um dApp público.

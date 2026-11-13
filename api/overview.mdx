@@ -37,8 +37,10 @@ A API aplica, em produção:
 | **Per-path** | Caps específicos (ex.: scan, login, forensic) |
 | **Per-key** | Free: **hard cap** (`429 RATE_LIMIT`). Pagos: **overage faturado** até **3×** a quota, depois `429 HARD_CEILING`. |
 
-Alertas 80%/100% ao dono da key; admin Telegram na 1.ª entrada em overage.  
+Alertas de consumo 80%/100% ao dono da conta (quando o serviço de quota-alert está activo); admin Telegram na 1.ª entrada em overage nos planos pagos.  
 Quotas de **simulação** bloqueiam com `403 SIMULATION_QUOTA`. Ver [erros](/api/errors).
+
+**Nota:** um `429` de quota mensal **não** significa que a API Key expirou. Expiração (`expiresAt`) e revogação são estados separados da key.
 
 ## Planos e volume
 

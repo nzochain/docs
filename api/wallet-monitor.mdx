@@ -27,4 +27,4 @@ POST https://api.nzochain.com/api/risk/scan-all
 
 ## Why this page changed
 
-Older drafts documented `/api/wallet/monitor` as continuous / real-time monitoring. That path was never a real production controller. Product monitoring today is **opt-in scheduled re-scan every 6 hours** in the B2C app — not mempool or event-driven continuous monitoring, and **not** exposed as a public `/api/wallet/*` API.
+Older drafts documented `/api/wallet/monitor` as continuous / real-time monitoring. That path was never a real production controller. Product monitoring today is **opt-in scheduled re-scan every 6 hours** in the B2C app (**off by default**; not guaranteed for every user) — not mempool or event-driven continuous monitoring, and **not** exposed as a public `/api/wallet/*` API.

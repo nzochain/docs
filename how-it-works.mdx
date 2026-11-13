@@ -85,6 +85,6 @@ See [Supported Networks](/networks/overview).
 
 ## Scheduled monitoring vs. on-demand scans
 
-Opt-in wallet monitoring re-scans on a **6-hour cron** — it is **not** real-time, mempool, or event-driven continuous monitoring. Alerts fire after a scheduled scan finds new risk signals.
+Opt-in wallet monitoring re-scans on a **6-hour cron** and is **off by default**. It is **not** real-time, mempool, 24/7, or event-driven continuous monitoring. Alerts are produced after a completed scheduled or on-demand scan finds new risk signals — not at the exact signing moment.
 
 On-demand scans are available any time from your dashboard and are useful for auditing a wallet you haven't connected before or checking an address you're about to send funds to.
