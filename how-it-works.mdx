@@ -22,7 +22,7 @@ When NZOChain receives a wallet address — from a new connection, an on-demand 
   </Step>
 
   <Step title="Analyze: run threat detection checks">
-    The ingested data passes through NZOChain's **rules engine** and multi-source signals (including GoPlus, public denylists, and proprietary triage). Four categories run in parallel:
+    The ingested data passes through NZOChain's **rules engine** and **multi-source signals** (public denylists, explorer data, and proprietary triage). Four categories run in parallel:
 
     **Token approval analysis** — Each active approval is evaluated for the approved amount (flagging unlimited/infinite approvals), the age of the approval, whether the approved contract has been flagged as malicious, and whether the approval is still necessary given your recent activity.
 
@@ -69,11 +69,11 @@ Your RiskScore maps to one of four statuses. The thresholds are calibrated so th
 
 ## Simulation
 
-Live transaction simulation requires **Tenderly** to be configured. If Tenderly is unavailable or not configured, the API returns **static / degraded** analysis instead of a live simulation result.
+Live transaction simulation uses the **platform's live simulation** when available. If live simulation is unavailable, the API returns **static / degraded** analysis instead. B2C quotas per billing period: Free 5, Basic 50, Pro 200, Premium 1000 — see [Transaction simulation](/features/transaction-simulation) and [GET /api/plans](/api/plans).
 
 ## Forensic analysis
 
-Drain / forensic timelines are **heuristic and advisory**. They help triage what may have happened — they are **never** definitive legal or forensic proof.
+The **Foste hackeado?** flow at [app.nzochain.com/forensic](https://app.nzochain.com/forensic) calls `POST /api/forensic/analyze` (no auth required for analyze). Drain / forensic timelines are **heuristic and advisory** over a **90-day** window — they are **never** definitive legal or forensic proof. Details: [Forensic analysis](/features/forensic-analysis).
 
 ## Multi-chain approach
 

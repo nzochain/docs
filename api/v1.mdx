@@ -65,7 +65,7 @@ Opcionais (DTO partilhado): `forceRefresh`, `includeBlocked`, `requesterWallet`.
 }
 ```
 
-Simulação **live** exige **Tenderly**. Sem Tenderly (ou se a chamada live falhar), a API devolve análise **estática / degradada**.
+Simulação **live** usa a simulação live da plataforma quando disponível. Se não estiver disponível (ou se a chamada live falhar), a API devolve análise **estática / degradada**. Catálogo B2C com `simulationLimit`: [GET /api/plans](/api/plans).
 
 Quotas mensais de simulate: Free 0 · Starter 100 · Growth 2 000 · Business 10 000 · Enterprise por contrato (pilot-grade). Esgotada → **403 `SIMULATION_QUOTA`**.
 

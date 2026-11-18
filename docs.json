@@ -50,7 +50,10 @@
               "features/risk-score",
               "features/wallet-monitoring",
               "features/contract-analysis",
-              "features/permission-revoke"
+              "features/token-approvals",
+              "features/permission-revoke",
+              "features/transaction-simulation",
+              "features/forensic-analysis"
             ]
           },
           {
@@ -81,6 +84,7 @@
             "group": "Overview",
             "pages": [
               "api/overview",
+              "api/plans",
               "api/authentication",
               "api/errors"
             ]

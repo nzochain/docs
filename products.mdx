@@ -11,7 +11,7 @@ A NZOChain é infraestrutura de segurança Web3 da **ASC AxiomTech**. Nunca pedi
 | Superfície | URL | Para quem |
 |---|---|---|
 | Landing | [nzochain.com](https://nzochain.com) | Marketing, preços, SEO (PT default; `/en/`, `/es/`, `/fr/`, `/zh/`, `/hi/`) |
-| App B2C | [app.nzochain.com](https://app.nzochain.com) | Protecção de wallets, scan, revogação, simulação, planos |
+| App B2C | [app.nzochain.com](https://app.nzochain.com) | Protecção de wallets, scan, revogação, simulação, forensic (`/forensic`), planos |
 | Portal B2B | [developers.nzochain.com](https://developers.nzochain.com) | Chaves API, billing, webhooks, API v1 |
 | API | [api.nzochain.com](https://api.nzochain.com) | REST (`/api/...` e `/api/v1/...`) |
 | Docs | [docs.nzochain.com](https://docs.nzochain.com) | Esta documentação |
@@ -28,6 +28,7 @@ App B2C, portal e landing: **PT (default) · EN · ES · FR · ZH · HI**. A esc
 ## Integração de developers
 
 - Chamadas de produto: **REST** em `https://api.nzochain.com/api` com header **`X-API-Key`**.
+- Catálogo B2C: `GET /api/plans` (limites incl. `simulationLimit`). Consumo na app via subscrição (`simulationsUsed` vs limite). Ver [Plans API](/api/plans).
 - Contrato recomendado: **API v1** (`/api/v1/...`). Ver [Quickstart](/quickstart) e [API v1](/api/v1).
 - **Não existe SDK oficial publicado** (npm `@nzochain/sdk` / classe `NzochainClient`). Integra com `curl`, `fetch` ou o cliente HTTP da tua stack.
 

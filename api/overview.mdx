@@ -54,7 +54,7 @@ Quotas de **simulação** bloqueiam com `403 SIMULATION_QUOTA`. Ver [erros](/api
 
 ## Simulação
 
-Simulação **live** exige Tenderly configurado. Sem Tenderly (ou se a chamada live falhar), a resposta é análise **estática / degradada**.
+Simulação **live** usa a simulação live da plataforma quando disponível. Se não estiver disponível (ou se a chamada live falhar), a resposta é análise **estática / degradada**. Quotas B2C: ver [GET /api/plans](/api/plans) e [simulação](/features/transaction-simulation). Modo **Foste hackeado?**: [forensic](/features/forensic-analysis).
 
 ## Webhooks
 

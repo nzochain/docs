@@ -17,7 +17,7 @@ App: [app.nzochain.com](https://app.nzochain.com) · Preços na landing: [nzocha
 - 1 wallet
 - Re-scan agendado 6h (**opt-in; desligado por omissão**; Free com limites diários de redes mais restritivos)
 - Alertas email
-- 50 scans / mês · 5 análises de contrato / mês
+- 50 scans / mês · 5 análises de contrato / mês · **5 simulações** / período de facturação
 - Revogação manual (tu assinas na tua carteira)
 
 [Começar grátis →](https://app.nzochain.com)
@@ -29,7 +29,7 @@ App: [app.nzochain.com](https://app.nzochain.com) · Preços na landing: [nzocha
 - 3 wallets
 - Re-scan agendado 6h (opt-in)
 - Email + push
-- 500 scans / mês · 50 análises de contrato / mês
+- 500 scans / mês · 50 análises de contrato / mês · **50 simulações** / período
 - Histórico 30 dias
 
 ## Pro — $9.99 / mês
@@ -39,7 +39,7 @@ App: [app.nzochain.com](https://app.nzochain.com) · Preços na landing: [nzocha
 - 10 wallets
 - Re-scan agendado 6h (opt-in)
 - Alertas + Telegram
-- 2 000 scans / mês · 200 análises de contrato / mês
+- 2 000 scans / mês · 200 análises de contrato / mês · **200 simulações** / período
 - Email + Telegram
 - Triagem de honeypots / fila de revogação
 
@@ -50,7 +50,7 @@ App: [app.nzochain.com](https://app.nzochain.com) · Preços na landing: [nzocha
 - 50 wallets
 - Re-scan agendado 6h (opt-in)
 - Alertas + histórico de RiskScore alargado
-- 10 000 scans / mês · 1 000 análises de contrato / mês
+- 10 000 scans / mês · 1 000 análises de contrato / mês · **1 000 simulações** / período
 - Redes: Ethereum, BNB Chain, Polygon, Arbitrum (4 EVM)
 
 ## Comparação
@@ -61,9 +61,12 @@ App: [app.nzochain.com](https://app.nzochain.com) · Preços na landing: [nzocha
 | Monitorização | 6h opt-in | 6h opt-in | 6h opt-in | 6h opt-in |
 | Scans / mês | 50 | 500 | 2 000 | 10 000 |
 | Contratos / mês | 5 | 50 | 200 | 1 000 |
+| Simulações / período | 5 | 50 | 200 | 1 000 |
 | Alertas | Email | Email + push | + Telegram | + histórico |
 | Preço | $0 | $4.99 | $9.99 | $19.99 |
 
 Anual: paga 10 meses, usa 12.
+
+Limites oficiais (incl. `simulationLimit`): [GET /api/plans](/api/plans). Detalhe da funcionalidade: [simulação de transacções](/features/transaction-simulation). Após incidente: [análise forense](/features/forensic-analysis).
 
 Integração API para produtos (dApps, wallets, exchanges) está nos [planos B2B](/pricing/enterprise).

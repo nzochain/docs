@@ -25,7 +25,7 @@ A NZOChain é **read-only** em relação aos fundos. Nunca temos chaves, seed ph
 1. **Scan on-demand** e **re-scan agendado opt-in** (cron **6h**, **desligado por omissão** — não tempo real / 24/7 / mempool).
 2. **RiskScore** heurístico — Safe / Warning / High Risk / Critical (e decisão API `ALLOW | REVIEW | BLOCK`). Rules + multi-source; **não** AI-powered / ML de produto.
 3. **Revogação** de permissões perigosas: tu assinas na carteira; efeito só após confirmação on-chain.
-4. **Simulação** de transacção (live via Tenderly; senão estática/degradada; B2B com quota).
+4. **Simulação** de transacção — simulação live da plataforma quando disponível; senão análise estática degradada; quotas B2C (5/50/200/1000) e B2B por plano. Ver [simulação](/features/transaction-simulation).
 
 ## Redes (produto actual)
 
@@ -51,5 +51,8 @@ Preços: [individuais](/pricing/individual) · [API B2B](/pricing/enterprise).
   </Card>
   <Card title="Planos B2B" icon="building" href="/pricing/enterprise">
     Firewall, simulação e threat intel.
+  </Card>
+  <Card title="Foste hackeado?" icon="magnifying-glass" href="/features/forensic-analysis">
+    Análise forense advisory — timeline 90 dias.
   </Card>
 </CardGroup>
