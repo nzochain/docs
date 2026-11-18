@@ -1,0 +1,49 @@
+---
+title: "Transaction simulation"
+description: "Preview what a transaction would do before you sign — live platform simulation when available, otherwise static/degraded analysis. B2C quotas per billing period."
+sidebarTitle: "Transaction simulation"
+---
+
+Transaction simulation lets you see **what a proposed transaction would do** to your wallet **before** you confirm it in MetaMask, WalletConnect, or another connector. It complements [RiskScore](/features/risk-score) and [contract analysis](/features/contract-analysis) when you are about to sign unfamiliar calldata.
+
+<Info>
+  NZOChain never signs on your behalf. Simulation is **read-only / advisory**. When live simulation is unavailable, you may receive **static or degraded analysis** instead of a full live execution preview.
+</Info>
+
+## How it works
+
+1. You provide the transaction context (target contract, calldata, value, network) from the app or via the B2B API.
+2. The platform runs a **live simulation** when the service is available.
+3. If live simulation cannot run, NZOChain falls back to **static / degraded analysis** (still advisory).
+
+Supported networks: **Ethereum, BNB Chain, Polygon, Arbitrum** (four EVM chains).
+
+## B2C quotas (billing period)
+
+Simulation usage on the consumer app is **metered per billing period**. One unit = **one simulation** consumed in that period.
+
+| Plan | Simulations / period |
+|------|----------------------|
+| Free | 5 |
+| Basic | 50 |
+| Pro | 200 |
+| Premium | 1 000 |
+
+When you are logged in, the app shows how much of your plan limit you have used (`simulationsUsed` vs `simulationLimit` from your subscription). See [Individual plans](/pricing/individual) and [GET /api/plans](/api/plans).
+
+Exhausting your B2C simulation quota blocks further simulations until the period resets or you upgrade.
+
+## B2B API
+
+`POST /api/v1/transactions/simulate` requires **Starter** or higher and a monthly simulation quota on the API plan. Details: [API v1](/api/v1) and [Enterprise pricing](/pricing/enterprise).
+
+## When to use simulation
+
+- Before approving a new spender on a site you do not fully trust.
+- When calldata is opaque and your wallet only shows “Contract interaction”.
+- After an incident — pair with [forensic analysis](/features/forensic-analysis) to avoid repeating the same mistake.
+
+## Limits and errors
+
+- B2B: `403 SIMULATION_QUOTA` when the key’s monthly simulate quota is used up.
+- Forensic and scan endpoints have separate per-path rate limits; see [API overview](/api/overview).

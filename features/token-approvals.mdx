@@ -1,0 +1,38 @@
+---
+title: "Token approvals analysis"
+description: "How NZOChain surfaces active ERC-20 approvals, unlimited spenders, connected dApps, and risky permissions across four EVM networks."
+sidebarTitle: "Token approvals"
+---
+
+Token approvals are on-chain permissions that let a **spender contract** move specific tokens from your wallet. Many dApps request **unlimited** approvals that stay active until you revoke them. That is the main surface for wallet drainers after phishing or a compromised protocol.
+
+NZOChain **reads** approvals across **Ethereum, BNB Chain, Polygon, and Arbitrum** and flags risk as part of scans and the [RiskScore](/features/risk-score).
+
+## What we analyze
+
+| Signal | Why it matters |
+|--------|----------------|
+| Unlimited allowance | Spender can drain the full token balance without asking again |
+| Spender reputation | Heuristics + multi-source signals (rules engine, denylists, proprietary triage) |
+| Approval age | Old approvals to unused contracts increase silent exposure |
+| Connected dApps | Inferred from active approvals — which protocols still can move tokens |
+| Cross-chain exposure | Same wallet on multiple chains may have different approval sets |
+
+Results are **advisory**. They are not a guarantee that a spender is safe or malicious.
+
+## In the B2C app
+
+- **Dashboard / Approvals**: list active permissions, risk hints, and (on eligible plans) revoke actions you confirm in your wallet.
+- **Scan on-demand** and **opt-in 6-hour re-scans** refresh approval state; this is **not** real-time mempool monitoring.
+
+To **revoke**, you always sign in your own wallet — non-custodial. Step-by-step: [Permission revoke](/features/permission-revoke).
+
+## After a suspected hack
+
+Use [Forensic analysis — Foste hackeado?](/features/forensic-analysis) for a 90-day timeline and verdict triage. Residual approvals load in the forensic flow **after login**; revocation still requires wallet connect.
+
+## Related
+
+- [Contract analysis](/features/contract-analysis) — bytecode and honeypot heuristics
+- [Transaction simulation](/features/transaction-simulation) — preview before the next approval
+- [FAQ](/faq) — what to do if you already signed something suspicious

@@ -1,0 +1,90 @@
+---
+title: "GET /api/plans"
+description: "Catálogo público de planos B2C activos, incluindo limites de scan, contrato e simulação."
+sidebarTitle: "Plans"
+---
+
+Expõe os planos **B2C activos** para checkout, pricing e integrações que precisam dos limites oficiais. Não requer autenticação.
+
+## Endpoints
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `/api/plans` | Lista planos B2C activos |
+| `GET` | `/api/plans/:slug` | Um plano por `slug` |
+
+Base: `https://api.nzochain.com/api`
+
+## Forma da resposta (contrato pretendido)
+
+Cada plano inclui, entre outros, os campos:
+
+`id`, `slug`, `name`, `type`, `active`, `price`, `periodDays`, `scanLimit`, `apiLimit`, `walletLimit`, `contractScanLimit`, **`simulationLimit`**, `features`, `createdAt`.
+
+Exemplo ilustrativo (valores de `simulationLimit` alinhados com o catálogo B2C actual):
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "clx…",
+      "slug": "free_b2c",
+      "name": "Free",
+      "type": "B2C",
+      "active": true,
+      "price": "0",
+      "periodDays": 30,
+      "scanLimit": 50,
+      "apiLimit": null,
+      "walletLimit": 1,
+      "contractScanLimit": 5,
+      "simulationLimit": 5,
+      "features": ["email_alerts"],
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "slug": "basic_b2c",
+      "name": "Basic",
+      "simulationLimit": 50,
+      "contractScanLimit": 50,
+      "walletLimit": 3,
+      "scanLimit": 500
+    },
+    {
+      "slug": "pro_b2c",
+      "name": "Pro",
+      "simulationLimit": 200,
+      "contractScanLimit": 200,
+      "walletLimit": 10,
+      "scanLimit": 2000
+    },
+    {
+      "slug": "premium_b2c",
+      "name": "Premium",
+      "simulationLimit": 1000,
+      "contractScanLimit": 1000,
+      "walletLimit": 50,
+      "scanLimit": 10000
+    }
+  ]
+}
+```
+
+<Note>
+  O envelope exacto pode seguir o interceptor global `{ "success": true, "data": … }` usado noutras rotas públicas. Os objectos acima são ilustrativos — consulta `GET /api/plans` para o payload live.
+</Note>
+
+## Uso consumido vs limite
+
+`GET /api/plans` devolve apenas os **limites do catálogo**, não o teu consumo.
+
+Na app autenticada, `GET /api/subscriptions/my` devolve `{ subscription, usage }` (JWT obrigatório). O objecto `subscription.plan` inclui **`simulationLimit`**; o objecto `usage` inclui **`simulationsUsed`**. O dashboard mostra simulações **restantes** ≈ limite menos consumo no período de facturação.
+
+Para quotas B2B de simulação na API, vê [API v1](/api/v1) e [planos Enterprise](/pricing/enterprise).
+
+## Relacionado
+
+- [Planos individuais](/pricing/individual)
+- [Simulação de transacções](/features/transaction-simulation)
+- [Erros API](/api/errors) — inclui `SIMULATION_QUOTA` no contexto B2B

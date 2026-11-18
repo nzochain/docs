@@ -1,6 +1,6 @@
 ---
 title: "RiskScore™: Heuristic Wallet Threat Scoring"
-description: "NZOChain's RiskScore™ assigns a 0–100 threat level using a rules engine plus multi-source signals (GoPlus, public denylists, proprietary triage). Advisory only."
+description: "NZOChain's RiskScore™ assigns a 0–100 threat level using a rules engine plus multi-source signals (public denylists, explorer data, proprietary triage). Advisory only."
 sidebarTitle: "RiskScore™"
 ---
 
@@ -47,8 +47,8 @@ Your RiskScore™ is calculated from multiple threat signals. NZOChain weighs ea
 NZOChain uses a **rules engine + multi-source signals**:
 
 - Proprietary triage rules (approvals, bytecode heuristics, connection patterns)
-- **GoPlus** security flags
 - Public denylists and known-bad address lists
+- Explorer and on-chain signal enrichment
 
 This is **not** AI-powered analysis and **not** a fully proprietary ML model. Premium plans may unlock richer history and higher scan limits — not a separate “AI RiskScore” engine.
 
@@ -75,3 +75,5 @@ Your RiskScore™ recalculates when:
 - Threat / denylist data used in the next scan includes new matches for your wallet's connections
 
 It does **not** update in real time from mempool or push events. Refresh via scan or wait for the next monitor tick.
+
+After a suspected incident, use [forensic analysis](/features/forensic-analysis) for a 90-day timeline. Before signing again, use [transaction simulation](/features/transaction-simulation) within your plan quota (see [GET /api/plans](/api/plans)).

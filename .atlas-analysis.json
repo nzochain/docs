@@ -1,7 +1,7 @@
 {
   "projectType": "saas",
   "projectName": "NZOChain",
-  "projectDescription": "Real-time Web3 threat intelligence platform that detects malicious contracts, dangerous approvals, and wallet drainers before assets are compromised.",
+  "projectDescription": "Web3 threat intelligence for four EVM networks: heuristic RiskScore, opt-in 6h wallet re-scans, contract analysis, and platform live simulation when available (otherwise static/degraded) — detects dangerous approvals and drainers before assets are compromised.",
   "theme": "luma",
   "primaryColor": "#6366F1",
   "lightColor": "#818CF8",
@@ -74,23 +74,24 @@
     ]
   },
   "keyFeatures": [
-    "Real-time wallet threat monitoring",
-    "RiskScore™ with AI-powered analysis",
+    "Opt-in wallet monitoring (scheduled re-scan every 6h)",
+    "RiskScore™ via rules engine + multi-source signals",
     "Malicious contract and token detection",
     "Infinite approval and permission alerts",
     "Smart permission revocation",
-    "Transaction simulation before signing",
+    "Transaction simulation (platform live simulation when available; otherwise static/degraded)",
     "Phishing and fake dApp detection",
-    "Enterprise REST API with webhooks",
-    "Bulk address scanning",
-    "Support for 30+ blockchains"
+    "REST API with revocation.completed webhooks",
+    "Per-wallet risk checks (v1) — four EVM networks",
+    "Ethereum, BNB Chain, Polygon, Arbitrum (Solana not supported)"
   ],
   "publicApiSurface": [
-    "POST /api/risk/scan",
-    "GET /api/wallet/monitor",
-    "POST /api/bulk/scan",
-    "POST /api/webhooks/subscribe",
-    "RiskScore™ response object",
-    "Webhook event payload"
+    "POST /api/v1/wallets/risk",
+    "POST /api/v1/contracts/risk",
+    "POST /api/v1/transactions/analyze",
+    "POST /api/v1/transactions/simulate",
+    "POST /api/v1/threats/check",
+    "POST /api/risk/scan (legacy)",
+    "Webhook event: revocation.completed"
   ]
 }

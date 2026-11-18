@@ -1,0 +1,110 @@
+---
+title: "Análise forense — Foste hackeado?"
+description: "Timeline heurística dos últimos 90 dias, vereditos advisory e próximos passos se suspeitas que a tua wallet foi drenada."
+sidebarTitle: "Análise forense"
+---
+
+A **análise forense** da NZOChain ajuda-te a perceber **o que pode ter acontecido** quando tokens ou NFTs saíram da tua carteira sem autorizares conscientemente. É uma ferramenta de **triagem e advisory** — não recupera fundos, não identifica o atacante com certeza e não substitui um perito legal.
+
+## O que é
+
+É uma página pública na app — **[app.nzochain.com/forensic](https://app.nzochain.com/forensic)** — com o CTA **«Foste hackeado?»**. A plataforma analisa movimentos on-chain recentes da morada que indicas e devolve:
+
+- um **veredito heurístico**;
+- uma **linha temporal** (aprovações e saídas de valor);
+- possíveis **drainers** (endereços que receberam fundos suspeitos);
+- **permissões ainda activas** («permission truths»).
+
+O período analisado é **90 dias** (`windowDays=90`).
+
+## Quando usar
+
+- Desapareceram tokens e não sabes porque.
+- Assinaste algo num site ou dApp que parecia legítimo e depois houve saídas.
+- Queres uma visão consolidada nas **4 redes EVM**: Ethereum, BNB Chain, Polygon e Arbitrum.
+- Já fizeste scan normal mas precisas de uma narrativa temporal focada em **drenagem**.
+
+<Warning>
+  Isto **não** é prova forense definitiva nem identificação criminal do atacante. Não garante proteção absoluta para o futuro.
+</Warning>
+
+## Como começar
+
+<Steps>
+  <Step title="Abrir a página forensic">
+    Vai a [app.nzochain.com/forensic](https://app.nzochain.com/forensic) ou usa o CTA **Foste hackeado?** na app.
+  </Step>
+  <Step title="Indicar a wallet">
+    Introduz a morada `0x…` da carteira afectada. Não precisas de login para a análise inicial.
+  </Step>
+  <Step title="Opcional: contexto e redes">
+    Podes escrever uma **história breve** (até **1000** caracteres) e escolher um **subconjunto** das 4 redes (por omissão analisa todas as disponíveis).
+  </Step>
+  <Step title="Pedir análise">
+    A app chama `POST https://api.nzochain.com/api/forensic/analyze`. **Não é obrigatório autenticar** para este pedido de análise.
+  </Step>
+</Steps>
+
+Se houver muitos pedidos, a API pode responder **429** (rate limit). Aguarda e tenta de novo.
+
+## O que é analisado
+
+| Área | O que a plataforma observa |
+|---|---|
+| Saídas de tokens | Transferências de valor da tua wallet no janela de 90 dias |
+| Aprovações | Aprovações ERC-20 / padrões relacionados que antecedem saídas |
+| Padrões de drain | Saídas para o mesmo destino desconhecido, `transferFrom` após aprovação |
+| Drainers | Endereços que parecem ter recebido fundos da tua wallet de forma suspeita |
+| Permissões residuais | O que ainda está activo on-chain (detalhe completo pode exigir login) |
+
+## Interpretar o veredito
+
+O backend devolve um destes vereditos (a UI pode ainda afinar com perguntas de contexto, por exemplo cenário de **chave comprometida**):
+
+| Veredito | Significado (advisory) |
+|---|---|
+| `approval-drain` | Há indícios de saída após aprovação a um contrato / spender suspeito |
+| `key-compromised` | (UI) Padrão ou respostas sugerem que a chave privada pode ter sido exposta |
+| `no-outflow` | Não há saídas suspeitas relevantes na janela (ou saídas explicáveis) |
+| `inconclusive` | Dados insuficientes, redes em falha ou padrão ambíguo |
+
+Lê sempre a **timeline** e os totais (`outboundTransfers`, `approvalDrains`, `directTransfers`, etc.) em conjunto com o veredito.
+
+## Como reagir
+
+1. **Não assines** novas transacções até perceberes o risco.
+2. Se ainda tens aprovações perigosas: liga a wallet na app e **revoga** — tu assinas; é **não-custodial**. Ver [Revogação de permissões](/features/permission-revoke).
+3. Se o veredito aponta para aprovação: revoga spenders desconhecidos nas 4 redes.
+4. Se suspeitas de chave comprometida: **migra activos para uma wallet nova** e **nunca reutilizes** a seed da carteira antiga.
+5. Usa [simulação de transacções](/features/transaction-simulation) antes de voltar a assinar em sites novos.
+
+## Recomendações de segurança
+
+- Revê aprovações activas regularmente com o [scan on-demand](/quickstart) e monitorização **opt-in 6h** se fizer sentido.
+- Confirma URLs de dApps; phishing imita marcas conhecidas.
+- Evita aprovações **ilimitadas** em contratos que não conheces.
+- A NZOChain **não** move os teus fundos nem pede seed phrase.
+
+## Perguntas frequentes
+
+### Preciso de conta para analisar?
+
+Não, para o pedido `POST /api/forensic/analyze`. Ver aprovações residuais em detalhe e **revogar** na forensic exige **login** e **ligar a wallet**.
+
+### Posso confiar no veredito em tribunal?
+
+Não. É heurística de produto para triagem pessoal, não relatório legal.
+
+### E se uma rede falhar na análise?
+
+A resposta pode listar `failedNetworks` e o veredito tender a `inconclusive`. Tenta de novo mais tarde ou limita às redes que funcionaram.
+
+### Isto recupera os meus tokens?
+
+**Não.** Só te ajuda a perceber o que pode ter acontecido e a reduzir exposição futura (revogações, nova wallet, etc.).
+
+### Relacionado
+
+- [Como funciona](/how-it-works) — pipeline de detecção
+- [RiskScore](/features/risk-score) — pontuação 0–100
+- [Aprovações de tokens](/features/token-approvals) — análise de permissões
